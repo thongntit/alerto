@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MenuBarView: View {
     @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var serverManager = HTTPServerManager.shared
     
     @State private var isClearAllHovered = false
     @State private var isSettingsHovered = false
@@ -10,6 +11,10 @@ struct MenuBarView: View {
     var body: some View {
         VStack(spacing: 0) {
             headerView
+            
+            Divider()
+            
+            serverStatusView
             
             Divider()
             
@@ -36,6 +41,47 @@ struct MenuBarView: View {
         }
         .padding()
         .background(Color(NSColor.windowBackgroundColor))
+    }
+    
+    private var serverStatusView: some View {
+        HStack {
+            Circle()
+                .fill(statusColor)
+                .frame(width: 8, height: 8)
+            
+            Text(serverManager.status.displayText)
+                .font(.system(size: 11))
+                .foregroundColor(.secondary)
+            
+            Spacer()
+            
+            Button(serverManager.status == .stopped ? "Start" : "Stop") {
+                Task {
+                    if serverManager.status == .stopped {
+                        await serverManager.start()
+                    } else {
+                        await serverManager.stop()
+                    }
+                }
+            }
+            .font(.system(size: 10))
+            .buttonStyle(.plain)
+            .foregroundColor(.blue)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color(NSColor.controlBackgroundColor))
+    }
+    
+    private var statusColor: Color {
+        switch serverManager.status {
+        case .running:
+            return .green
+        case .stopped:
+            return .gray
+        case .error:
+            return .red
+        }
     }
     
     private var emptyStateView: some View {

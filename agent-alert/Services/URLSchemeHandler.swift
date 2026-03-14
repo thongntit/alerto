@@ -42,16 +42,17 @@ class URLSchemeHandler {
     
     func handleNotificationURL(components: URLComponents?) {
         guard let queryItems = components?.queryItems else { return }
-        
+
         let sourceString = queryItems.first(where: { $0.name == "source" })?.value ?? "claude"
         let typeString = queryItems.first(where: { $0.name == "type" })?.value ?? "complete"
-        let message = queryItems.first(where: { $0.name == "message" })?.value ?? "Notification received"
-        
+        let rawMessage = queryItems.first(where: { $0.name == "message" })?.value ?? "Notification received"
+        let message = rawMessage.removingPercentEncoding ?? rawMessage
+
         guard let source = NotificationSource(rawValue: sourceString),
               let type = NotificationType(rawValue: typeString) else {
             return
         }
-        
+
         NotificationManager.shared.handleNotification(source: source, type: type, message: message)
     }
     
