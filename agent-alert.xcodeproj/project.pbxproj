@@ -65,6 +65,7 @@
 			);
 			name = "agent-alert";
 			packageProductDependencies = (
+				BA0000002F3EF06500B518EC /* Hummingbird */,
 			);
 			productName = "agentic-notifier";
 			productReference = BA5B86FD2F3EF06500B518EC /* agent-alert.app */;
@@ -94,6 +95,9 @@
 			);
 			mainGroup = BA5B86F42F3EF06500B518EC;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				BA0000001F3EF06500B518EC /* XCRemoteSwiftPackageReference "hummingbird" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BA5B86FE2F3EF06500B518EC /* Products */;
 			projectDirPath = "";
@@ -332,6 +336,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		BA0000001F3EF06500B518EC /* XCRemoteSwiftPackageReference "hummingbird" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hummingbird-project/hummingbird.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		BA0000002F3EF06500B518EC /* Hummingbird */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BA0000001F3EF06500B518EC /* XCRemoteSwiftPackageReference "hummingbird" */;
+			productName = Hummingbird;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = BA5B86F52F3EF06500B518EC /* Project object */;
 }

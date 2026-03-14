@@ -1,13 +1,19 @@
 import Foundation
 
-enum NotificationSource: String, Codable {
+enum NotificationSource: String, Codable, CaseIterable {
     case claude = "claude"
     case opencode = "opencode"
+    case cursor = "cursor"
+    case windsurf = "windsurf"
+    case other = "other"
     
     var displayName: String {
         switch self {
         case .claude: return "Claude Code"
         case .opencode: return "OpenCode"
+        case .cursor: return "Cursor"
+        case .windsurf: return "Windsurf"
+        case .other: return "Other"
         }
     }
     
@@ -15,15 +21,20 @@ enum NotificationSource: String, Codable {
         switch self {
         case .claude: return "brain.head.profile"
         case .opencode: return "chevron.left.forwardslash.chevron.right"
+        case .cursor: return "cursorarrow"
+        case .windsurf: return "wind"
+        case .other: return "app.fill"
         }
     }
 }
 
-enum NotificationType: String, Codable {
+enum NotificationType: String, Codable, CaseIterable {
     case complete = "complete"
     case permission = "permission"
     case question = "question"
     case idle = "idle"
+    case attention = "attention"
+    case error = "error"
     
     var color: String {
         switch self {
@@ -31,6 +42,8 @@ enum NotificationType: String, Codable {
         case .permission: return "#FFE66D"
         case .question: return "#95E1D3"
         case .idle: return "#F38181"
+        case .attention: return "#FF6B6B"
+        case .error: return "#E74C3C"
         }
     }
     
@@ -40,6 +53,8 @@ enum NotificationType: String, Codable {
         case .permission: return "lock.shield.fill"
         case .question: return "questionmark.circle.fill"
         case .idle: return "clock.fill"
+        case .attention: return "exclamationmark.triangle.fill"
+        case .error: return "xmark.circle.fill"
         }
     }
 }

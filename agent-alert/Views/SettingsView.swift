@@ -8,6 +8,11 @@ struct SettingsView: View {
                     Label("General", systemImage: "gearshape")
                 }
             
+            HTTPSettingsView()
+                .tabItem {
+                    Label("HTTP Server", systemImage: "network")
+                }
+            
             IntegrationsSettingsView()
                 .tabItem {
                     Label("Integrations", systemImage: "link")
@@ -70,7 +75,94 @@ struct GeneralSettingsView: View {
     }
 }
 
+struct HTTPSettingsView: View {
+    @StateObject private var serverManager = HTTPServerManager.shared
+    @State private var portString: String = ""
+    @State private var showPortError = false
+    
+    var body: some View {
+        Form {
+            Section("Server Status") {
+                HStack {
+                    Circle()
+                        .fill(statusColor)
+                        .frame(width: 10, height: 10)
+                    
+                    Text(serverManager.status.displayText)
+                    
+                    Spacer()
+                    
+                    Button(serverManager.status == .stopped ? "Start" : "Stop") {
+                        Task {
+                            if serverManager.status == .stopped {
+                                await serverManager.start()
+                            } else {
+                                await serverManager.stop()
+                            }
+                        }
+                    }
+                }
+            }
+            
+            Section("Configuration") {
+                HStack {
+                    Text("Port")
+                    Spacer()
+                    TextField("Port", text: $portString)
+                        .frame(width: 80)
+                        .textFieldStyle(.roundedBorder)
+                        .onChange(of: portString) { _, newValue in
+                            if let port = Int(newValue), port >= 1 && port <= 65535 {
+                                showPortError = false
+                                Task {
+                                    await serverManager.updatePort(port)
+                                }
+                            } else if !newValue.isEmpty {
+                                showPortError = true
+                            }
+                        }
+                }
+                
+                if showPortError {
+                    Text("Port must be between 1 and 65535")
+                        .foregroundColor(.red)
+                        .font(.caption)
+                }
+                
+                if case .error(let message) = serverManager.status {
+                    Text(message)
+                        .foregroundColor(.red)
+                        .font(.caption)
+                }
+            }
+            
+            Section {
+                Text("The HTTP server allows external tools to send notifications via HTTP requests instead of URL schemes. This prevents the app from being re-launched on each notification.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .formStyle(.grouped)
+        .padding()
+        .onAppear {
+            portString = String(serverManager.port)
+        }
+    }
+    
+    private var statusColor: Color {
+        switch serverManager.status {
+        case .running:
+            return .green
+        case .stopped:
+            return .gray
+        case .error:
+            return .red
+        }
+    }
+}
+
 struct IntegrationsSettingsView: View {
+    @StateObject private var serverManager = HTTPServerManager.shared
     @State private var selectedTab = 0
     
     var body: some View {
@@ -86,9 +178,9 @@ struct IntegrationsSettingsView: View {
             .pickerStyle(.segmented)
             
             if selectedTab == 0 {
-                ClaudeCodeIntegrationView()
+                ClaudeCodeIntegrationView(port: serverManager.port)
             } else {
-                OpenCodeIntegrationView()
+                OpenCodeIntegrationView(port: serverManager.port)
             }
             
             Spacer()
@@ -98,6 +190,8 @@ struct IntegrationsSettingsView: View {
 }
 
 struct ClaudeCodeIntegrationView: View {
+    let port: Int
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Add this hook to your Claude Code settings (~/.claude/settings.json):")
@@ -129,7 +223,7 @@ struct ClaudeCodeIntegrationView: View {
                 "hooks": [
                   {
                     "type": "command",
-                    "command": "open 'agent-alert://notify?source=claude&type=attention&message=Claude needs your input'"
+                    "command": "curl -X POST 'http://127.0.0.1:\(port)/notify?source=claude&type=attention&message=Claude needs your input'"
                   }
                 ]
               }
@@ -141,6 +235,8 @@ struct ClaudeCodeIntegrationView: View {
 }
 
 struct OpenCodeIntegrationView: View {
+    let port: Int
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Create a plugin file at ~/.config/opencode/plugins/agent-alert.js:")
@@ -167,11 +263,11 @@ struct OpenCodeIntegrationView: View {
         export const AgentAlertPlugin = async ({ $ }) => {
           return {
             "session.idle": async () => {
-              await $`open 'agent-alert://notify?source=opencode&type=idle&message=Session is idle'`
+              await $`curl -X POST 'http://127.0.0.1:\(port)/notify?source=opencode&type=idle&message=Session is idle'`
             },
             "message.updated": async ({ message }) => {
               if (message.role === "assistant" && message.content.includes("?")) {
-                await $`open 'agent-alert://notify?source=opencode&type=question&message=Assistant asks a question'`
+                await $`curl -X POST 'http://127.0.0.1:\(port)/notify?source=opencode&type=question&message=Assistant asks a question'`
               }
             }
           }
