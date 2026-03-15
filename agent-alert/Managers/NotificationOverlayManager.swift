@@ -18,11 +18,11 @@ class NotificationOverlayManager {
     private func createOverlayWindow() {
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 400, height: 100),
-            styleMask: [.borderless],
+            styleMask: [.borderless, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
-        
+
         window.isOpaque = false
         window.backgroundColor = .clear
         window.level = .screenSaver
@@ -31,6 +31,8 @@ class NotificationOverlayManager {
         window.hasShadow = true
         window.acceptsMouseMovedEvents = false
         window.ignoresMouseEvents = true
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
         
         let view = NSHostingView(rootView: NotificationOverlayView())
         hostingView = view
