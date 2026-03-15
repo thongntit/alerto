@@ -183,52 +183,44 @@ class ClaudeCodeHookManager: ObservableObject {
 
     /// Stop: Runs when the main Claude Code agent has finished responding
     private func createStopHook(port: Int) -> [String: Any] {
+        let cmd = "curl -s -X POST \"http://127.0.0.1:\(port)/notify\" -H \"Content-Type: application/json\" -d @- || curl -s -X POST \"http://127.0.0.1:\(port)/notify\" -H \"Content-Type: application/json\" -d '{\"source\":\"claude\",\"type\":\"complete\",\"message\":\"Task completed\"}'"
         return [
             "id": "\(Self.hookIdPrefix)stop",
             "hooks": [
-                [
-                    "type": "command",
-                    "command": "curl -s -X POST http://127.0.0.1:\(port)/notify -H 'Content-Type: application/json' -d '{\"source\":\"claude\",\"type\":\"stop\",\"message\":\"Claude Code stopped\"}'"
-                ]
+                ["type": "command", "command": cmd]
             ]
         ]
     }
 
     /// SubagentStop: Runs when a Claude Code subagent has finished responding
     private func createSubagentStopHook(port: Int) -> [String: Any] {
+        let cmd = "curl -s -X POST \"http://127.0.0.1:\(port)/notify\" -H \"Content-Type: application/json\" -d @- || curl -s -X POST \"http://127.0.0.1:\(port)/notify\" -H \"Content-Type: application/json\" -d '{\"source\":\"claude\",\"type\":\"complete\",\"message\":\"Subagent completed\"}'"
         return [
             "id": "\(Self.hookIdPrefix)subagent-stop",
             "hooks": [
-                [
-                    "type": "command",
-                    "command": "curl -s -X POST http://127.0.0.1:\(port)/notify -H 'Content-Type: application/json' -d '{\"source\":\"claude\",\"type\":\"complete\",\"message\":\"Subagent task completed\"}'"
-                ]
+                ["type": "command", "command": cmd]
             ]
         ]
     }
 
     /// Notification: Runs when Claude Code sends notifications (permission needed, idle)
     private func createNotificationHook(port: Int) -> [String: Any] {
+        let cmd = "curl -s -X POST \"http://127.0.0.1:\(port)/notify\" -H \"Content-Type: application/json\" -d @- || curl -s -X POST \"http://127.0.0.1:\(port)/notify\" -H \"Content-Type: application/json\" -d '{\"source\":\"claude\",\"type\":\"attention\",\"message\":\"Claude needs attention\"}'"
         return [
             "id": "\(Self.hookIdPrefix)notification",
             "hooks": [
-                [
-                    "type": "command",
-                    "command": "curl -s -X POST http://127.0.0.1:\(port)/notify -H 'Content-Type: application/json' -d '{\"source\":\"claude\",\"type\":\"attention\",\"message\":\"Claude needs attention\"}'"
-                ]
+                ["type": "command", "command": cmd]
             ]
         ]
     }
 
     /// SessionEnd: Runs when a Claude Code session ends
     private func createSessionEndHook(port: Int) -> [String: Any] {
+        let cmd = "curl -s -X POST \"http://127.0.0.1:\(port)/notify\" -H \"Content-Type: application/json\" -d @- || curl -s -X POST \"http://127.0.0.1:\(port)/notify\" -H \"Content-Type: application/json\" -d '{\"source\":\"claude\",\"type\":\"stop\",\"message\":\"Session ended\"}'"
         return [
             "id": "\(Self.hookIdPrefix)session-end",
             "hooks": [
-                [
-                    "type": "command",
-                    "command": "curl -s -X POST http://127.0.0.1:\(port)/notify -H 'Content-Type: application/json' -d '{\"source\":\"claude\",\"type\":\"stop\",\"message\":\"Session ended\"}'"
-                ]
+                ["type": "command", "command": cmd]
             ]
         ]
     }

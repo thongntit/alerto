@@ -11,14 +11,22 @@ struct NotificationOverlayView: View {
                     .frame(width: 44, height: 44)
 
                 VStack(alignment: .leading, spacing: 4) {
+                    // Show hook type context if available
+                    if let hookType = notification.hookType, hookType != .unknown {
+                        Text(hookContextTitle(for: hookType))
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.7))
+                    }
+
                     Text(notification.source.displayName)
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(.white)
 
-                    Text(notification.message)
+                    // Show truncated message content
+                    Text(notification.truncatedMessage)
                         .font(.system(size: 13))
                         .foregroundStyle(.white.opacity(0.9))
-                        .lineLimit(2)
+                        .lineLimit(3)
                 }
 
                 Spacer(minLength: 8)
@@ -59,6 +67,26 @@ struct NotificationOverlayView: View {
                     Capsule()
                         .fill(Color(hex: notification.type.color).opacity(0.3))
                 )
+        }
+    }
+
+    /// Returns a human-readable context title based on the hook type
+    private func hookContextTitle(for hookType: HookType) -> String {
+        switch hookType {
+        case .notification:
+            return "Claude needs your input"
+        case .stop:
+            return "Claude finished responding"
+        case .subagentStop:
+            return "Subagent completed"
+        case .sessionEnd:
+            return "Session ended"
+        case .userPromptSubmit:
+            return "Processing your prompt"
+        case .permissionRequest:
+            return "Permission requested"
+        case .unknown:
+            return ""
         }
     }
 }

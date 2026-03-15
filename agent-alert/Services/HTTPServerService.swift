@@ -144,72 +144,111 @@ class HTTPServerManager: ObservableObject {
     }
     
     private func handleNotify(request: Request, context: BasicRequestContext) async throws -> Response {
+        print("[HTTPServer] Received notification request")
+        logger.info("Received notification request")
+
         var source: String?
         var type: String?
         var message: String?
-        
+        var hookType: HookType?
+
         if let query = request.uri.query {
             let params = parseQueryParams(query)
             source = params["source"]
             type = params["type"]
             message = params["message"]
+            print("[HTTPServer] Query params: source=\(source ?? "nil"), type=\(type ?? "nil"), message=\(message ?? "nil")")
         }
-        
+
         if request.method == .post {
             if let body = try? await request.body.collect(upTo: 1024 * 1024),
                body.readableBytes > 0 {
                 let data = body.getData(at: 0, length: body.readableBytes) ?? Data()
-                if let json = try? JSONDecoder().decode(NotifyRequest.self, from: data) {
+                let bodyString = String(data: data, encoding: .utf8) ?? "Unable to decode body"
+                print("[HTTPServer] POST body: \(bodyString)")
+                logger.info("Received POST body: \(bodyString)")
+
+                // First try to parse as HookPayload (new format with Claude Code hook data)
+                if let hookPayload = try? JSONDecoder().decode(HookPayload.self, from: data) {
+                    let hookEventName = hookPayload.hookEventName ?? hookPayload.hookType ?? "nil"
+                    print("[HTTPServer] Parsed as HookPayload: hookEventName=\(hookEventName), message=\(hookPayload.effectiveMessage)")
+                    logger.info("Parsed as HookPayload: hookEventName=\(hookEventName), message=\(hookPayload.effectiveMessage)")
+                    source = source ?? hookPayload.effectiveSource
+                    type = type ?? hookPayload.effectiveType
+                    message = message ?? hookPayload.effectiveMessage
+
+                    // Extract hook type if present
+                    hookType = hookPayload.effectiveHookType
+                }
+                // Fall back to old format (NotifyRequest) for backward compatibility
+                else if let json = try? JSONDecoder().decode(NotifyRequest.self, from: data) {
+                    print("[HTTPServer] Parsed as NotifyRequest: source=\(json.source), type=\(json.type), message=\(json.message)")
+                    logger.info("Parsed as NotifyRequest: source=\(json.source), type=\(json.type), message=\(json.message)")
                     source = source ?? json.source
                     type = type ?? json.type
                     message = message ?? json.message
+                } else {
+                    print("[HTTPServer] WARNING: Failed to parse request body as either HookPayload or NotifyRequest")
+                    logger.warning("Failed to parse request body as either HookPayload or NotifyRequest")
                 }
+            } else {
+                print("[HTTPServer] WARNING: Request body is empty or unreadable")
+                logger.warning("Request body is empty or unreadable")
             }
         }
-        
+
         guard let sourceValue = source, !sourceValue.isEmpty else {
+            print("[HTTPServer] ERROR: Missing required parameter: source")
             return Response(
                 status: .badRequest,
                 body: .init(byteBuffer: ByteBuffer(string: #"{"error": "Missing required parameter: source"}"#))
             )
         }
-        
+
         guard let typeValue = type, !typeValue.isEmpty else {
+            print("[HTTPServer] ERROR: Missing required parameter: type")
             return Response(
                 status: .badRequest,
                 body: .init(byteBuffer: ByteBuffer(string: #"{"error": "Missing required parameter: type"}"#))
             )
         }
-        
+
         guard let messageValue = message, !messageValue.isEmpty else {
+            print("[HTTPServer] ERROR: Missing required parameter: message")
             return Response(
                 status: .badRequest,
                 body: .init(byteBuffer: ByteBuffer(string: #"{"error": "Missing required parameter: message"}"#))
             )
         }
-        
+
         guard let notificationSource = NotificationSource(rawValue: sourceValue) else {
+            print("[HTTPServer] ERROR: Invalid source: \(sourceValue)")
             return Response(
                 status: .badRequest,
                 body: .init(byteBuffer: ByteBuffer(string: #"{"error": "Invalid source: \(sourceValue)"}"#))
             )
         }
-        
+
         guard let notificationType = NotificationType(rawValue: typeValue) else {
+            print("[HTTPServer] ERROR: Invalid type: \(typeValue)")
             return Response(
                 status: .badRequest,
                 body: .init(byteBuffer: ByteBuffer(string: #"{"error": "Invalid type: \(typeValue)"}"#))
             )
         }
-        
+
         await MainActor.run {
             NotificationManager.shared.handleNotification(
                 source: notificationSource,
                 type: notificationType,
-                message: messageValue
+                message: messageValue,
+                hookType: hookType,
+                rawMessage: nil
             )
+            print("[HTTPServer] Notification sent to NotificationManager: source=\(notificationSource.rawValue), type=\(notificationType.rawValue), message=\(messageValue), hookType=\(hookType?.rawValue ?? "nil")")
+            logger.info("Notification sent to NotificationManager: source=\(notificationSource.rawValue), type=\(notificationType.rawValue), message=\(messageValue), hookType=\(hookType?.rawValue ?? "nil")")
         }
-        
+
         return Response(
             status: .ok,
             body: .init(byteBuffer: ByteBuffer(string: #"{"success": true}"#))
@@ -250,6 +289,116 @@ private struct NotifyRequest: Codable {
     let source: String
     let type: String
     let message: String
+}
+
+/// Represents the payload from Claude Code hooks
+struct HookPayload: Codable {
+    // Top-level fields (backward compatibility)
+    let source: String?
+    let type: String?
+    let message: String?
+
+    // Claude Code hook specific fields
+    let hookType: String?
+    let stopHookActive: Bool?
+
+    // Notification hook fields
+    let notification: NotificationPayload?
+
+    // Session fields
+    let sessionId: String?
+    let reason: String?
+
+    // Actual Claude Code hook payload fields
+    let hookEventName: String?
+    let lastAssistantMessage: String?
+    let permissionMode: String?
+    let cwd: String?
+    let transcriptPath: String?
+
+    enum CodingKeys: String, CodingKey {
+        case source, type, message
+        case hookType = "hook_type"
+        case stopHookActive = "stop_hook_active"
+        case notification
+        case sessionId = "session_id"
+        case reason
+        case hookEventName = "hook_event_name"
+        case lastAssistantMessage = "last_assistant_message"
+        case permissionMode = "permission_mode"
+        case cwd
+        case transcriptPath = "transcript_path"
+    }
+
+    /// Extract the effective message from the payload
+    var effectiveMessage: String {
+        if let msg = message, !msg.isEmpty {
+            return msg
+        }
+        if let notif = notification?.message, !notif.isEmpty {
+            return notif
+        }
+        if let msg = lastAssistantMessage, !msg.isEmpty {
+            return msg
+        }
+        // Fallback based on hook event name
+        if let hookEvent = hookEventName ?? hookType {
+            switch hookEvent.lowercased() {
+            case "stop":
+                return "Task completed"
+            case "subagentstop":
+                return "Subagent completed"
+            case "notification":
+                return "Claude needs your attention"
+            case "sessionend":
+                return "Session ended"
+            case "permissionrequest":
+                return "Permission requested"
+            default:
+                return "Notification from Claude Code"
+            }
+        }
+        return "Notification from Claude Code"
+    }
+
+    /// Extract the effective type from the payload
+    var effectiveType: String {
+        if let t = type, !t.isEmpty {
+            return t
+        }
+        if let ht = hookEventName ?? hookType {
+            switch ht.lowercased() {
+            case "notification":
+                return "attention"
+            case "stop", "subagentstop":
+                return "complete"
+            case "sessionend", "session_end":
+                return "stop"
+            case "permissionrequest":
+                return "permission"
+            default:
+                return "attention"
+            }
+        }
+        return type ?? "attention"
+    }
+
+    /// Extract the effective hook type
+    var effectiveHookType: HookType? {
+        if let ht = hookEventName ?? hookType {
+            return HookType(rawValue: ht)
+        }
+        return nil
+    }
+
+    /// Extract the effective source from the payload
+    var effectiveSource: String {
+        return source ?? "claude"
+    }
+}
+
+struct NotificationPayload: Codable {
+    let message: String?
 }
 
 private struct HealthResponse: Codable {
