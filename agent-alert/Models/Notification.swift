@@ -35,7 +35,9 @@ enum NotificationType: String, Codable, CaseIterable {
     case idle = "idle"
     case attention = "attention"
     case error = "error"
-    
+    case start = "start"
+    case stop = "stop"
+
     var color: String {
         switch self {
         case .complete: return "#4ECDC4"
@@ -44,9 +46,11 @@ enum NotificationType: String, Codable, CaseIterable {
         case .idle: return "#F38181"
         case .attention: return "#FF6B6B"
         case .error: return "#E74C3C"
+        case .start: return "#3498DB"
+        case .stop: return "#95A5A6"
         }
     }
-    
+
     var icon: String {
         switch self {
         case .complete: return "checkmark.circle.fill"
@@ -55,6 +59,8 @@ enum NotificationType: String, Codable, CaseIterable {
         case .idle: return "clock.fill"
         case .attention: return "exclamationmark.triangle.fill"
         case .error: return "xmark.circle.fill"
+        case .start: return "play.circle.fill"
+        case .stop: return "stop.circle.fill"
         }
     }
 }
