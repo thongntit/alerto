@@ -6,13 +6,30 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E5A07FC62F65E26C0079F469 /* Hummingbird in Frameworks */ = {isa = PBXBuildFile; productRef = BA0000002F3EF06500B518EC /* Hummingbird */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		BA5B86FD2F3EF06500B518EC /* agent-alert.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "agent-alert.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E5A07FE62F667FA10079F469 /* Exceptions for "agent-alert" folder in "agent-alert" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = BA5B86FC2F3EF06500B518EC /* agent-alert */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		BA5B86FF2F3EF06500B518EC /* agent-alert */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E5A07FE62F667FA10079F469 /* Exceptions for "agent-alert" folder in "agent-alert" target */,
+			);
 			path = "agent-alert";
 			sourceTree = "<group>";
 		};
@@ -23,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5A07FC62F65E26C0079F469 /* Hummingbird in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

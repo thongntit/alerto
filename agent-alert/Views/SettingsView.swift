@@ -163,26 +163,15 @@ struct HTTPSettingsView: View {
 
 struct IntegrationsSettingsView: View {
     @StateObject private var serverManager = HTTPServerManager.shared
-    @State private var selectedTab = 0
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Integrations")
                 .font(.title2)
                 .fontWeight(.semibold)
-            
-            Picker("", selection: $selectedTab) {
-                Text("Claude Code").tag(0)
-                Text("OpenCode").tag(1)
-            }
-            .pickerStyle(.segmented)
-            
-            if selectedTab == 0 {
-                ClaudeCodeIntegrationView(port: serverManager.port)
-            } else {
-                OpenCodeIntegrationView(port: serverManager.port)
-            }
-            
+
+            ClaudeCodeIntegrationView(port: serverManager.port)
+
             Spacer()
         }
         .padding()
@@ -191,88 +180,212 @@ struct IntegrationsSettingsView: View {
 
 struct ClaudeCodeIntegrationView: View {
     let port: Int
-    
+
+    @StateObject private var hookManager = ClaudeCodeHookManager.shared
+    @State private var isInstalling = false
+    @State private var installError: String?
+    @State private var showSuccessMessage = false
+
+    // Individual hook states
+    @State private var hookStopEnabled = false
+    @State private var hookNotificationEnabled = false
+    @State private var hookSessionEndEnabled = false
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Add this hook to your Claude Code settings (~/.claude/settings.json):")
-                .font(.subheadline)
-            
-            CodeBlockView(code: claudeHookCode)
-            
-            HStack {
-                Button("Copy to Clipboard") {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(claudeHookCode, forType: .string)
+        VStack(alignment: .leading, spacing: 16) {
+            // Status Section
+            Section {
+                HStack {
+                    Image(systemName: "brain.head.profile")
+                        .font(.title2)
+                        .foregroundColor(.blue)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Claude Code")
+                            .font(.headline)
+
+                        Text(hookStatusText)
+                            .font(.caption)
+                            .foregroundColor(hookStatusColor)
+                    }
+
+                    Spacer()
+
+                    if isInstalling {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                    }
                 }
-                
-                Spacer()
-                
-                Link("Learn more about hooks", destination: URL(string: "https://code.claude.com/docs/en/hooks-guide")!)
+            }
+
+            Divider()
+
+            // Port Configuration
+            Section("Server") {
+                HStack {
+                    Text("Port")
+                    Spacer()
+                    Text("\(port)")
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            // Hook Events Section
+            Section("Hooks") {
+                Toggle("Stop - When main agent finishes", isOn: $hookStopEnabled)
+                    .onChange(of: hookStopEnabled) { _, newValue in
+                        toggleHook("stop", enabled: newValue)
+                    }
+
+                Toggle("Notification - When Claude needs attention", isOn: $hookNotificationEnabled)
+                    .onChange(of: hookNotificationEnabled) { _, newValue in
+                        toggleHook("notification", enabled: newValue)
+                    }
+
+                Toggle("SessionEnd - When session ends", isOn: $hookSessionEndEnabled)
+                    .onChange(of: hookSessionEndEnabled) { _, newValue in
+                        toggleHook("session-end", enabled: newValue)
+                    }
+            }
+            .onAppear {
+                refreshHookStates()
+            }
+
+            // Actions Section
+            Section {
+                HStack {
+                    Button("Install All") {
+                        installAllHooks()
+                    }
+                    .disabled(isInstalling || allHooksEnabled)
+
+                    Button("Remove All") {
+                        removeAllHooks()
+                    }
+                    .disabled(isInstalling || !anyHookEnabled)
+                    .foregroundColor(.red)
+                }
+
+                if let error = installError {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundColor(.red)
+                }
+
+                if showSuccessMessage {
+                    Text("Hooks updated successfully!")
+                        .font(.caption)
+                        .foregroundColor(.green)
+                }
+            }
+
+            // Info Section
+            Section {
+                Text("Check individual hooks to enable/disable them. Use Install All/Remove All for bulk operations.")
                     .font(.caption)
+                    .foregroundColor(.secondary)
             }
         }
     }
-    
-    private var claudeHookCode: String {
-        """
-        {
-          "hooks": {
-            "Notification": [
-              {
-                "matcher": "",
-                "hooks": [
-                  {
-                    "type": "command",
-                    "command": "curl -X POST 'http://127.0.0.1:\(port)/notify?source=claude&type=attention&message=Claude needs your input'"
-                  }
-                ]
-              }
-            ]
-          }
+
+    private var hookStatusText: String {
+        if !hookManager.isClaudeCodeInstalled() {
+            return "Claude Code not detected"
         }
-        """
+        if hookManager.isAnyHookInstalled() {
+            let count = [hookStopEnabled, hookNotificationEnabled, hookSessionEndEnabled].filter { $0 }.count
+            return "\(count) hook(s) enabled"
+        }
+        return "No hooks installed"
+    }
+
+    private var hookStatusColor: Color {
+        if !hookManager.isClaudeCodeInstalled() {
+            return .orange
+        }
+        if hookManager.isAnyHookInstalled() {
+            return .green
+        }
+        return .secondary
+    }
+
+    private var allHooksEnabled: Bool {
+        hookStopEnabled && hookNotificationEnabled && hookSessionEndEnabled
+    }
+
+    private var anyHookEnabled: Bool {
+        hookStopEnabled || hookNotificationEnabled || hookSessionEndEnabled
+    }
+
+    private func refreshHookStates() {
+        hookStopEnabled = hookManager.isHookInstalled(hookId: "agent-alert:stop")
+        hookNotificationEnabled = hookManager.isHookInstalled(hookId: "agent-alert:notification")
+        hookSessionEndEnabled = hookManager.isHookInstalled(hookId: "agent-alert:session-end")
+    }
+
+    private func toggleHook(_ hookName: String, enabled: Bool) {
+        isInstalling = true
+        installError = nil
+        showSuccessMessage = false
+
+        do {
+            if enabled {
+                try hookManager.installHook(name: hookName, port: port)
+            } else {
+                try hookManager.uninstallHook(name: hookName)
+            }
+            showSuccessMessage = true
+        } catch {
+            installError = "Failed to \(enabled ? "install" : "remove"): \(error.localizedDescription)"
+            // Revert state on error
+            refreshHookStates()
+        }
+
+        isInstalling = false
+    }
+
+    private func installAllHooks() {
+        isInstalling = true
+        installError = nil
+        showSuccessMessage = false
+
+        do {
+            try hookManager.installHooks(port: port)
+            refreshHookStates()
+            showSuccessMessage = true
+        } catch {
+            installError = "Failed to install: \(error.localizedDescription)"
+        }
+
+        isInstalling = false
+    }
+
+    private func removeAllHooks() {
+        isInstalling = true
+        installError = nil
+        showSuccessMessage = false
+
+        do {
+            try hookManager.uninstallHooks()
+            refreshHookStates()
+            showSuccessMessage = true
+        } catch {
+            installError = "Failed to remove: \(error.localizedDescription)"
+        }
+
+        isInstalling = false
     }
 }
 
 struct OpenCodeIntegrationView: View {
     let port: Int
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Create a plugin file at ~/.config/opencode/plugins/agent-alert.js:")
+            Text("OpenCode integration is no longer supported.")
                 .font(.subheadline)
-            
-            CodeBlockView(code: opencodePluginCode)
-            
-            HStack {
-                Button("Copy to Clipboard") {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(opencodePluginCode, forType: .string)
-                }
-                
-                Spacer()
-                
-                Link("Learn more about plugins", destination: URL(string: "https://opencode.ai/docs/plugins/")!)
-                    .font(.caption)
-            }
+                .foregroundColor(.secondary)
         }
-    }
-    
-    private var opencodePluginCode: String {
-        """
-        export const AgentAlertPlugin = async ({ $ }) => {
-          return {
-            "session.idle": async () => {
-              await $`curl -X POST 'http://127.0.0.1:\(port)/notify?source=opencode&type=idle&message=Session is idle'`
-            },
-            "message.updated": async ({ message }) => {
-              if (message.role === "assistant" && message.content.includes("?")) {
-                await $`curl -X POST 'http://127.0.0.1:\(port)/notify?source=opencode&type=question&message=Assistant asks a question'`
-              }
-            }
-          }
-        }
-        """
     }
 }
 
