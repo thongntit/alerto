@@ -66,7 +66,7 @@ enum NotificationType: String, Codable, CaseIterable {
 }
 
 struct AgenticNotification: Identifiable, Codable {
-    let id = UUID()
+    var id = UUID()
     let source: NotificationSource
     let type: NotificationType
     let message: String
