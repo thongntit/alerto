@@ -65,6 +65,17 @@ enum NotificationType: String, Codable, CaseIterable {
     }
 }
 
+/// Represents which Claude Code hook triggered the notification
+enum HookType: String, Codable {
+    case notification = "Notification"
+    case stop = "Stop"
+    case subagentStop = "SubagentStop"
+    case sessionEnd = "SessionEnd"
+    case userPromptSubmit = "UserPromptSubmit"
+    case permissionRequest = "PermissionRequest"
+    case unknown = "unknown"
+}
+
 struct AgenticNotification: Identifiable, Codable {
     var id = UUID()
     let source: NotificationSource
@@ -72,11 +83,27 @@ struct AgenticNotification: Identifiable, Codable {
     let message: String
     let timestamp: Date
     var isRead: Bool = false
-    
-    init(source: NotificationSource, type: NotificationType, message: String) {
+
+    // New fields for detailed hook information
+    let hookType: HookType?
+    let rawMessage: String?
+
+    init(source: NotificationSource, type: NotificationType, message: String, hookType: HookType? = nil, rawMessage: String? = nil) {
         self.source = source
         self.type = type
         self.message = message
         self.timestamp = Date()
+        self.isRead = false
+        self.hookType = hookType
+        self.rawMessage = rawMessage
+    }
+
+    /// Returns a truncated version of the message for display in notifications
+    var truncatedMessage: String {
+        let maxLength = 200
+        if message.count > maxLength {
+            return String(message.prefix(maxLength)) + "..."
+        }
+        return message
     }
 }

@@ -21,9 +21,9 @@ class NotificationManager: ObservableObject {
 
     private init() {}
     
-    func handleNotification(source: NotificationSource, type: NotificationType, message: String) {
-        let notification = AgenticNotification(source: source, type: type, message: message)
-        
+    func handleNotification(source: NotificationSource, type: NotificationType, message: String, hookType: HookType? = nil, rawMessage: String? = nil) {
+        let notification = AgenticNotification(source: source, type: type, message: message, hookType: hookType, rawMessage: rawMessage)
+
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.showNotification(notification)
