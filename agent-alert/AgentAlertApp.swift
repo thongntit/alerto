@@ -4,17 +4,12 @@ import SwiftUI
 struct AgentAlertApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var notificationManager = NotificationManager.shared
-    
+
     var body: some Scene {
         MenuBarExtra("AgentAlert", systemImage: notificationManager.menubarIcon) {
             MenuBarView()
         }
         .menuBarExtraStyle(.window)
-        
-        Settings {
-            SettingsView()
-                .frame(width: 550, height: 500)
-        }
     }
 }
 
@@ -22,12 +17,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         URLSchemeHandler.shared.registerHandler()
         NotificationOverlayManager.shared.setup()
-        
+
         Task {
             await HTTPServerManager.shared.start()
         }
     }
-    
+
     func applicationWillTerminate(_ notification: Notification) {
         Task {
             await HTTPServerManager.shared.stop()
