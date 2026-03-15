@@ -19,10 +19,6 @@ struct AgentAlertApp: App {
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
-    func applicationWillFinishLaunching(_ notification: Notification) {
-        NSApplication.shared.setActivationPolicy(.accessory)
-    }
-    
     func applicationDidFinishLaunching(_ notification: Notification) {
         URLSchemeHandler.shared.registerHandler()
         NotificationOverlayManager.shared.setup()
