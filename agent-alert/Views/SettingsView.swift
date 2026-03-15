@@ -408,22 +408,23 @@ struct CodeBlockView: View {
 
 struct AboutView: View {
     @ObservedObject var notificationManager = NotificationManager.shared
-    
+
     var body: some View {
         VStack(spacing: 20) {
-            Image(systemName: notificationManager.menubarIcon)
-                .font(.system(size: 64))
-                .foregroundColor(.blue)
-            
+            Image("AppIcon")
+                .resizable()
+                .frame(width: 64, height: 64)
+                .cornerRadius(12)
+
             Text("AgentAlert")
                 .font(.title)
                 .fontWeight(.bold)
-            
+
             Text("Version 1.0")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
-            
-            Text("A macOS notification app for Claude Code and OpenCode")
+
+            Text("A macOS notification app for Claude Code")
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .padding()
