@@ -124,7 +124,9 @@ struct MenuBarView: View {
             Spacer()
             
             HStack(spacing: 16) {
-                SettingsLink {
+                Button {
+                    SettingsWindowManager.shared.showSettings()
+                } label: {
                     Image(systemName: "gearshape")
                         .font(.system(size: 14))
                         .foregroundColor(isSettingsHovered ? .primary : .secondary)
@@ -133,7 +135,7 @@ struct MenuBarView: View {
                 .onHover { hovering in
                     isSettingsHovered = hovering
                 }
-                
+
                 Button {
                     NSApplication.shared.terminate(nil)
                 } label: {
