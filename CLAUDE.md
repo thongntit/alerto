@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Agent Alert** is a macOS menu bar application that displays intelligent notifications from AI agents and tools without interrupting your workflow. It runs as a menu bar utility (LSUIElement = true) with no dock icon.
+**Agent Alert** is a macOS menu bar application that displays intelligent notifications from Claude Code without interrupting your workflow. It runs as a menu bar utility (LSUIElement = true) with no dock icon.
 
 ## Commands
 
@@ -21,50 +21,74 @@ xcodebuild -project agent-alert.xcodeproj -scheme agentic-notifier -configuratio
 open agent-alert.xcodeproj
 ```
 
-### URL Scheme Testing
+### HTTP API Testing
+
+The app runs a local HTTP server on port 7531:
 
 ```bash
-# Test notification
-open "agent-alert://test"
+# POST notification (Claude Code hook format)
+curl -X POST http://127.0.0.1:7531/notify \
+  -H "Content-Type: application/json" \
+  -d '{"hook_event_name": "Stop", "last_assistant_message": "Task completed"}'
+
+# POST notification (legacy format)
+curl -X POST http://127.0.0.1:7531/notify \
+  -H "Content-Type: application/json" \
+  -d '{"source": "claude", "type": "complete", "message": "Task done"}'
+
+# Health check
+curl http://127.0.0.1:7531/health
 ```
 
 ## Architecture
 
-### Core Components
+### Entry Point
+- **AgentAlertApp.swift**: SwiftUI App with `@NSApplicationDelegateAdaptor(AppDelegate.self)`. Initializes managers on launch.
 
-- **AgentAlertApp.swift**: Main entry point using SwiftUI App with `@NSApplicationDelegateAdaptor`. Registers URL scheme handler and overlay manager on launch.
-- **NotificationManager** (Singleton): Central hub for notification state, handles display, sound playback, and manages notification queue/history.
-- **URLSchemeHandler** (Singleton): Processes incoming `agent-alert://` URLs using Apple Event Manager. Supports `notify` and `test` endpoints.
-- **HTTPServerService**: Local HTTP server for receiving notifications via POST requests.
-- **NotificationOverlayManager**: Manages overlay window display.
+### Core Services (Singletons)
+- **NotificationManager**: Central hub for notification state, handles display, sound playback, and manages notification queue/history.
+- **HTTPServerManager**: Local HTTP server (Hummingbird) for receiving POST notifications on port 7531.
 
 ### Models
-
-- **Notification.swift**: Defines `NotificationSource` (claude, opencode, cursor, windsurf, other), `NotificationType` (complete, permission, question, idle, attention, error), and `AgenticNotification` struct.
+- **Notification.swift**: Defines `NotificationSource` (claude only), `NotificationType` (complete, permission, question, idle, attention, error, start, stop), `HookType` (notification, stop, subagentStop, sessionEnd, userPromptSubmit, permissionRequest), and `AgenticNotification` struct.
 
 ### Views
-
-- **MenuBarView**: SwiftUI menu bar interface accessible via system menu bar icon.
+- **MenuBarView**: SwiftUI menu bar interface.
 - **SettingsView**: Configuration panel for sound preferences and notification history.
-- **NotificationOverlayView**: Floating overlay displayed for incoming notifications.
+- **NotificationOverlayView**: Floating overlay for incoming notifications.
 
-## URL Scheme
+### Managers
+- **NotificationOverlayManager**: Manages overlay window display.
+- **SettingsWindowManager**: Manages settings window lifecycle.
 
-The app registers the `agent-alert://` URL scheme.
+## HTTP API
 
-| Path | Parameters | Description |
-|------|------------|-------------|
-| `agent-alert://notify` | `source`, `type`, `message` | Send a notification |
-| `agent-alert://test` | - | Trigger test notification |
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/notify` | GET/POST | Send notification |
+| `/health` | GET | Server health check with uptime |
 
-**Notification Sources**: claude, opencode, cursor, windsurf, other
-**Notification Types**: complete, permission, question, idle, attention, error
+### HTTP Payload Formats
+
+**Claude Code Hook Payload:**
+```json
+{
+  "hook_event_name": "Stop",
+  "last_assistant_message": "Task completed",
+  "notification": { "message": "Important update" }
+}
+```
 
 ## System Requirements
 
-- macOS 14.0+
+- macOS 15.0+
 - Xcode 15.0+
 - Swift 5.9+
+
+## Dependencies
+
+- **Hummingbird**: Swift HTTP server framework
+- **ServiceLifecycle**: For graceful HTTP server shutdown
 
 ## CI/CD
 
