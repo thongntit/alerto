@@ -144,8 +144,7 @@ class HTTPServerManager: ObservableObject {
     }
     
     private func handleNotify(request: Request, context: BasicRequestContext) async throws -> Response {
-        print("[HTTPServer] Received notification request")
-        logger.info("Received notification request")
+        AppLogger.shared.info("\(request.method) \(request.uri.path)", category: .http)
 
         var source: String?
         var type: String?
@@ -157,7 +156,6 @@ class HTTPServerManager: ObservableObject {
             source = params["source"]
             type = params["type"]
             message = params["message"]
-            print("[HTTPServer] Query params: source=\(source ?? "nil"), type=\(type ?? "nil"), message=\(message ?? "nil")")
         }
 
         if request.method == .post {
@@ -165,14 +163,12 @@ class HTTPServerManager: ObservableObject {
                body.readableBytes > 0 {
                 let data = body.getData(at: 0, length: body.readableBytes) ?? Data()
                 let bodyString = String(data: data, encoding: .utf8) ?? "Unable to decode body"
-                print("[HTTPServer] POST body: \(bodyString)")
-                logger.info("Received POST body: \(bodyString)")
+                AppLogger.shared.debug("POST body: \(bodyString)", category: .http)
 
                 // First try to parse as HookPayload (new format with Claude Code hook data)
                 if let hookPayload = try? JSONDecoder().decode(HookPayload.self, from: data) {
                     let hookEventName = hookPayload.hookEventName ?? hookPayload.hookType ?? "nil"
-                    print("[HTTPServer] Parsed as HookPayload: hookEventName=\(hookEventName), message=\(hookPayload.effectiveMessage)")
-                    logger.info("Parsed as HookPayload: hookEventName=\(hookEventName), message=\(hookPayload.effectiveMessage)")
+                    AppLogger.shared.info("Parsed as HookPayload: hookEventName=\(hookEventName), message=\(hookPayload.effectiveMessage)", category: .http)
                     source = source ?? hookPayload.effectiveSource
                     type = type ?? hookPayload.effectiveType
                     message = message ?? hookPayload.effectiveMessage
@@ -182,23 +178,20 @@ class HTTPServerManager: ObservableObject {
                 }
                 // Fall back to old format (NotifyRequest) for backward compatibility
                 else if let json = try? JSONDecoder().decode(NotifyRequest.self, from: data) {
-                    print("[HTTPServer] Parsed as NotifyRequest: source=\(json.source), type=\(json.type), message=\(json.message)")
-                    logger.info("Parsed as NotifyRequest: source=\(json.source), type=\(json.type), message=\(json.message)")
+                    AppLogger.shared.info("Parsed as NotifyRequest: source=\(json.source), type=\(json.type), message=\(json.message)", category: .http)
                     source = source ?? json.source
                     type = type ?? json.type
                     message = message ?? json.message
                 } else {
-                    print("[HTTPServer] WARNING: Failed to parse request body as either HookPayload or NotifyRequest")
-                    logger.warning("Failed to parse request body as either HookPayload or NotifyRequest")
+                    AppLogger.shared.warning("Failed to parse request body as either HookPayload or NotifyRequest", category: .http)
                 }
             } else {
-                print("[HTTPServer] WARNING: Request body is empty or unreadable")
-                logger.warning("Request body is empty or unreadable")
+                AppLogger.shared.warning("Request body is empty or unreadable", category: .http)
             }
         }
 
         guard let sourceValue = source, !sourceValue.isEmpty else {
-            print("[HTTPServer] ERROR: Missing required parameter: source")
+            AppLogger.shared.error("Missing required parameter: source", category: .http)
             return Response(
                 status: .badRequest,
                 body: .init(byteBuffer: ByteBuffer(string: #"{"error": "Missing required parameter: source"}"#))
@@ -206,7 +199,7 @@ class HTTPServerManager: ObservableObject {
         }
 
         guard let typeValue = type, !typeValue.isEmpty else {
-            print("[HTTPServer] ERROR: Missing required parameter: type")
+            AppLogger.shared.error("Missing required parameter: type", category: .http)
             return Response(
                 status: .badRequest,
                 body: .init(byteBuffer: ByteBuffer(string: #"{"error": "Missing required parameter: type"}"#))
@@ -214,7 +207,7 @@ class HTTPServerManager: ObservableObject {
         }
 
         guard let messageValue = message, !messageValue.isEmpty else {
-            print("[HTTPServer] ERROR: Missing required parameter: message")
+            AppLogger.shared.error("Missing required parameter: message", category: .http)
             return Response(
                 status: .badRequest,
                 body: .init(byteBuffer: ByteBuffer(string: #"{"error": "Missing required parameter: message"}"#))
@@ -222,7 +215,7 @@ class HTTPServerManager: ObservableObject {
         }
 
         guard let notificationSource = NotificationSource(rawValue: sourceValue) else {
-            print("[HTTPServer] ERROR: Invalid source: \(sourceValue)")
+            AppLogger.shared.error("Invalid source: \(sourceValue)", category: .http)
             return Response(
                 status: .badRequest,
                 body: .init(byteBuffer: ByteBuffer(string: #"{"error": "Invalid source: \(sourceValue)"}"#))
@@ -230,24 +223,21 @@ class HTTPServerManager: ObservableObject {
         }
 
         guard let notificationType = NotificationType(rawValue: typeValue) else {
-            print("[HTTPServer] ERROR: Invalid type: \(typeValue)")
+            AppLogger.shared.error("Invalid type: \(typeValue)", category: .http)
             return Response(
                 status: .badRequest,
                 body: .init(byteBuffer: ByteBuffer(string: #"{"error": "Invalid type: \(typeValue)"}"#))
             )
         }
 
-        await MainActor.run {
-            NotificationManager.shared.handleNotification(
-                source: notificationSource,
-                type: notificationType,
-                message: messageValue,
-                hookType: hookType,
-                rawMessage: nil
-            )
-            print("[HTTPServer] Notification sent to NotificationManager: source=\(notificationSource.rawValue), type=\(notificationType.rawValue), message=\(messageValue), hookType=\(hookType?.rawValue ?? "nil")")
-            logger.info("Notification sent to NotificationManager: source=\(notificationSource.rawValue), type=\(notificationType.rawValue), message=\(messageValue), hookType=\(hookType?.rawValue ?? "nil")")
-        }
+        NotificationManager.shared.handleNotification(
+            source: notificationSource,
+            type: notificationType,
+            message: messageValue,
+            hookType: hookType,
+            rawMessage: nil
+        )
+        AppLogger.shared.info("Notification dispatched: source=\(notificationSource.rawValue), type=\(notificationType.rawValue), hookType=\(hookType?.rawValue ?? "none")", category: .http)
 
         return Response(
             status: .ok,

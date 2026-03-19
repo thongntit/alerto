@@ -18,6 +18,11 @@ struct SettingsView: View {
                     Label("Integrations", systemImage: "link")
                 }
             
+            LogViewerView()
+                .tabItem {
+                    Label("Logs", systemImage: "doc.text.magnifyingglass")
+                }
+
             AboutView()
                 .tabItem {
                     Label("About", systemImage: "info.circle")
