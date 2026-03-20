@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		E5A07FC62F65E26C0079F469 /* Hummingbird in Frameworks */ = {isa = PBXBuildFile; productRef = BA0000002F3EF06500B518EC /* Hummingbird */; };
+		FA00000A00000000FA00000A /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = FA00000C00000000FA00000C /* Sparkle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +42,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E5A07FC62F65E26C0079F469 /* Hummingbird in Frameworks */,
+				FA00000A00000000FA00000A /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +86,7 @@
 			name = "agent-alert";
 			packageProductDependencies = (
 				BA0000002F3EF06500B518EC /* Hummingbird */,
+				FA00000C00000000FA00000C /* Sparkle */,
 			);
 			productName = "agentic-notifier";
 			productReference = BA5B86FD2F3EF06500B518EC /* agent-alert.app */;
@@ -115,6 +118,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				BA0000001F3EF06500B518EC /* XCRemoteSwiftPackageReference "hummingbird" */,
+				FA00000B00000000FA00000B /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BA5B86FE2F3EF06500B518EC /* Products */;
@@ -366,6 +370,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		FA00000B00000000FA00000B /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -373,6 +385,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BA0000001F3EF06500B518EC /* XCRemoteSwiftPackageReference "hummingbird" */;
 			productName = Hummingbird;
+		};
+		FA00000C00000000FA00000C /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA00000B00000000FA00000B /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
