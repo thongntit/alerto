@@ -15,5 +15,13 @@
 	</array>
 	<key>LSUIElement</key>
 	<true/>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>SUFeedURL</key>
+	<string>https://github.com/thongntit/agent-alert/releases/latest/download/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>tFhZhBWDcu+jkwclJoZ0rLIyXWSUJ/OUQQhjCykLfYs=</string>
 </dict>
 </plist>
