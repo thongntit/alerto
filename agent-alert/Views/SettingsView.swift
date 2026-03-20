@@ -1,4 +1,5 @@
 import SwiftUI
+import Sparkle
 
 struct SettingsView: View {
     var body: some View {
@@ -18,6 +19,11 @@ struct SettingsView: View {
                     Label("Integrations", systemImage: "link")
                 }
             
+            LogViewerView()
+                .tabItem {
+                    Label("Logs", systemImage: "doc.text.magnifyingglass")
+                }
+
             AboutView()
                 .tabItem {
                     Label("About", systemImage: "info.circle")
@@ -408,6 +414,15 @@ struct CodeBlockView: View {
 
 struct AboutView: View {
     @ObservedObject var notificationManager = NotificationManager.shared
+    @AppStorage("SUEnableAutomaticChecks") private var automaticallyChecksForUpdates = true
+
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+    }
+
+    private var updaterController: SPUStandardUpdaterController? {
+        (NSApp.delegate as? AppDelegate)?.updaterController
+    }
 
     var body: some View {
         VStack(spacing: 20) {
@@ -420,7 +435,7 @@ struct AboutView: View {
                 .font(.title)
                 .fontWeight(.bold)
 
-            Text("Version 1.0")
+            Text("Version \(appVersion)")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 
@@ -428,13 +443,27 @@ struct AboutView: View {
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .padding()
-            
+
+            Divider()
+
+            VStack(spacing: 12) {
+                Toggle("Automatically check for updates", isOn: $automaticallyChecksForUpdates)
+                    .toggleStyle(.switch)
+
+                Button("Check for Updates") {
+                    updaterController?.checkForUpdates(nil)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(updaterController?.updater.canCheckForUpdates == false)
+            }
+            .padding(.horizontal)
+
             Spacer()
-            
+
             VStack(spacing: 12) {
                 Text("Test Notifications")
                     .font(.headline)
-                
+
                 Button("Test Notification") {
                     notificationManager.handleNotification(
                         source: .claude,
@@ -443,12 +472,12 @@ struct AboutView: View {
                     )
                 }
                 .buttonStyle(.borderedProminent)
-                
+
                 HStack(spacing: 12) {
                     Button("Mark All Read") {
                         notificationManager.markAllAsRead()
                     }
-                    
+
                     Button("Clear All") {
                         notificationManager.clearAll()
                     }

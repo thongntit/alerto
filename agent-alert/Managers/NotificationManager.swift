@@ -23,6 +23,7 @@ class NotificationManager: ObservableObject {
     
     func handleNotification(source: NotificationSource, type: NotificationType, message: String, hookType: HookType? = nil, rawMessage: String? = nil) {
         let notification = AgenticNotification(source: source, type: type, message: message, hookType: hookType, rawMessage: rawMessage)
+        AppLogger.shared.info("Received: source=\(source.rawValue), type=\(type.rawValue), message=\(String(message.prefix(256)))", category: .notification)
 
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -35,9 +36,13 @@ class NotificationManager: ObservableObject {
 
         if playSound {
             NSSound(named: NSSound.Name(selectedSound))?.play()
+            AppLogger.shared.info("Sound played: \(selectedSound)", category: .display)
+        } else {
+            AppLogger.shared.debug("Sound skipped (setting disabled)", category: .display)
         }
 
         if showOverlaySetting {
+            AppLogger.shared.info("Overlay shown", category: .display)
             showOverlay = true
             overlayTimer?.invalidate()
             overlayTimer = Timer.scheduledTimer(withTimeInterval: overlayDuration, repeats: false) { [weak self] _ in
@@ -45,6 +50,7 @@ class NotificationManager: ObservableObject {
             }
             NotificationOverlayManager.shared.show(notification: notification, duration: overlayDuration)
         } else {
+            AppLogger.shared.info("Overlay skipped (setting disabled)", category: .display)
             // If overlay is disabled, just add to history immediately
             dismissOverlay()
         }
@@ -58,6 +64,7 @@ class NotificationManager: ObservableObject {
             if notifications.count > Self.maxNotificationHistory {
                 notifications = Array(notifications.prefix(Self.maxNotificationHistory))
             }
+            AppLogger.shared.info("Notification added to history", category: .notification)
         }
         currentNotification = nil
     }
