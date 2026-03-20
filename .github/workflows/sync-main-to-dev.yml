@@ -1,0 +1,51 @@
+name: Sync main to dev
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Try merge main into dev
+        id: merge
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout dev
+          git merge origin/main --no-edit && echo "success=true" >> $GITHUB_OUTPUT || echo "success=false" >> $GITHUB_OUTPUT
+
+      - name: Push if merge succeeded
+        if: steps.merge.outputs.success == 'true'
+        run: git push origin dev
+
+      - name: Open PR if conflict
+        if: steps.merge.outputs.success == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: `${context.repo.owner}:main`,
+              base: 'dev'
+            });
+            if (prs.length === 0) {
+              await github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'chore: sync main into dev',
+                body: 'Automated sync from `main` to `dev` has conflicts and requires manual resolution.',
+                head: 'main',
+                base: 'dev'
+              });
+            }
