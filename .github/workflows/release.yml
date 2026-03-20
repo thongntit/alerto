@@ -10,10 +10,13 @@ permissions:
 jobs:
   build:
     runs-on: macos-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set DMG name
+        run: echo "DMG_NAME=agent-alert-${GITHUB_REF_NAME}.dmg" >> $GITHUB_ENV
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -36,7 +39,7 @@ jobs:
           hdiutil create -volname "agent-alert" \
             -srcfolder dmg_temp \
             -ov -format UDZO \
-            "agent-alert-${GITHUB_REF_NAME}.dmg"
+            "${{ env.DMG_NAME }}"
 
       - name: Install Sparkle tools
         run: |
@@ -53,7 +56,7 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           PUB_DATE=$(date -u "+%a, %d %b %Y %H:%M:%S +0000")
 
-          SIGN_OUTPUT=$(echo "$SPARKLE_PRIVATE_KEY" | ./sparkle_tools/bin/sign_update "agent-alert-${GITHUB_REF_NAME}.dmg" --ed-key-file -)
+          SIGN_OUTPUT=$(echo "$SPARKLE_PRIVATE_KEY" | ./sparkle_tools/bin/sign_update "${{ env.DMG_NAME }}" --ed-key-file -)
           SIGNATURE=$(echo "$SIGN_OUTPUT" | sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p')
           FILE_SIZE=$(echo "$SIGN_OUTPUT" | sed -n 's/.*length="\([^"]*\)".*/\1/p')
 
@@ -69,7 +72,7 @@ jobs:
                 <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
                 <pubDate>${PUB_DATE}</pubDate>
                 <enclosure
-                  url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/agent-alert-${GITHUB_REF_NAME}.dmg"
+                  url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/${{ env.DMG_NAME }}"
                   sparkle:edSignature="${SIGNATURE}"
                   length="${FILE_SIZE}"
                   type="application/octet-stream"/>
@@ -82,7 +85,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            agent-alert-${{ github.ref_name }}.dmg
+            ${{ env.DMG_NAME }}
             appcast.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
