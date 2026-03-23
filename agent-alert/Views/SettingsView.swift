@@ -421,7 +421,7 @@ struct AboutView: View {
     }
 
     private var updaterController: SPUStandardUpdaterController? {
-        (NSApp.delegate as? AppDelegate)?.updaterController
+        UpdaterManager.shared.updaterController
     }
 
     var body: some View {
@@ -451,7 +451,12 @@ struct AboutView: View {
                     .toggleStyle(.switch)
 
                 Button("Check for Updates") {
-                    updaterController?.checkForUpdates(nil)
+                    if let uc = updaterController {
+                        print("[Updater] Check for Updates clicked — triggering check")
+                        uc.checkForUpdates(nil)
+                    } else {
+                        print("[Updater] Check for Updates clicked but updaterController is nil")
+                    }
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(updaterController?.updater.canCheckForUpdates == false)

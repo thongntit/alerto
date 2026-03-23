@@ -15,8 +15,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set DMG name
-        run: echo "DMG_NAME=agent-alert-${GITHUB_REF_NAME}.dmg" >> $GITHUB_ENV
+      - name: Set version and DMG name
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "DMG_NAME=agent-alert-${VERSION}.dmg" >> $GITHUB_ENV
+          echo "MARKETING_VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "Current project version: ${VERSION}"
+
+      - name: Update MARKETING_VERSION and CURRENT_PROJECT_VERSION in project
+        run: |
+          sed -i '' "s/MARKETING_VERSION = [0-9.]*;/MARKETING_VERSION = ${{ env.MARKETING_VERSION }};/g" agent-alert.xcodeproj/project.pbxproj
+          sed -i '' "s/CURRENT_PROJECT_VERSION = [0-9.]*;/CURRENT_PROJECT_VERSION = ${{ env.MARKETING_VERSION }};/g" agent-alert.xcodeproj/project.pbxproj
+          echo "Updated MARKETING_VERSION and CURRENT_PROJECT_VERSION to ${{ env.MARKETING_VERSION }}"
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
