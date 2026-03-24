@@ -8,26 +8,23 @@ struct SettingsView: View {
                 .tabItem {
                     Label("General", systemImage: "gearshape")
                 }
-            
-            HTTPSettingsView()
-                .tabItem {
-                    Label("HTTP Server", systemImage: "network")
-                }
-            
+
             IntegrationsSettingsView()
                 .tabItem {
                     Label("Integrations", systemImage: "link")
-                }
-            
-            LogViewerView()
-                .tabItem {
-                    Label("Logs", systemImage: "doc.text.magnifyingglass")
                 }
 
             AboutView()
                 .tabItem {
                     Label("About", systemImage: "info.circle")
                 }
+
+            #if DEBUG
+            LogViewerView()
+                .tabItem {
+                    Label("Logs", systemImage: "doc.text.magnifyingglass")
+                }
+            #endif
         }
     }
 }
@@ -37,14 +34,17 @@ struct GeneralSettingsView: View {
     @AppStorage("overlayDuration") private var overlayDuration = 3.0
     @AppStorage("playSound") private var playSound = true
     @AppStorage("selectedSound") private var selectedSound = "Glass"
-    
+
+    @StateObject private var serverManager = HTTPServerManager.shared
+    @State private var portString: String = ""
+
     let availableSounds = ["Glass", "Ping", "Pop", "Purr", "Blow", "Hero", "Submarine"]
-    
+
     var body: some View {
         Form {
             Section("Notifications") {
                 Toggle("Show overlay notification", isOn: $showOverlay)
-                
+
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Text("Overlay duration")
@@ -55,10 +55,10 @@ struct GeneralSettingsView: View {
                     Slider(value: $overlayDuration, in: 1...10, step: 1)
                 }
             }
-            
+
             Section("Sound") {
                 Toggle("Play sound", isOn: $playSound)
-                
+
                 if playSound {
                     Picker("Notification sound", selection: $selectedSound) {
                         ForEach(availableSounds, id: \.self) { sound in
@@ -66,7 +66,7 @@ struct GeneralSettingsView: View {
                         }
                     }
                     .pickerStyle(.menu)
-                    
+
                     HStack {
                         Spacer()
                         Button("Preview Sound") {
@@ -75,29 +75,17 @@ struct GeneralSettingsView: View {
                     }
                 }
             }
-        }
-        .formStyle(.grouped)
-        .padding()
-    }
-}
 
-struct HTTPSettingsView: View {
-    @StateObject private var serverManager = HTTPServerManager.shared
-    @State private var portString: String = ""
-    @State private var showPortError = false
-    
-    var body: some View {
-        Form {
-            Section("Server Status") {
+            Section("HTTP Server") {
                 HStack {
                     Circle()
                         .fill(statusColor)
                         .frame(width: 10, height: 10)
-                    
+
                     Text(serverManager.status.displayText)
-                    
+
                     Spacer()
-                    
+
                     Button(serverManager.status == .stopped ? "Start" : "Stop") {
                         Task {
                             if serverManager.status == .stopped {
@@ -108,9 +96,7 @@ struct HTTPSettingsView: View {
                         }
                     }
                 }
-            }
-            
-            Section("Configuration") {
+
                 HStack {
                     Text("Port")
                     Spacer()
@@ -118,32 +104,16 @@ struct HTTPSettingsView: View {
                         .frame(width: 80)
                         .textFieldStyle(.roundedBorder)
                         .onChange(of: portString) { _, newValue in
-                            if let port = Int(newValue), port >= 1 && port <= 65535 {
-                                showPortError = false
+                            let port = Int(newValue)
+                            if let port = port, port >= 1 && port <= 65535 {
                                 Task {
                                     await serverManager.updatePort(port)
                                 }
-                            } else if !newValue.isEmpty {
-                                showPortError = true
                             }
                         }
                 }
-                
-                if showPortError {
-                    Text("Port must be between 1 and 65535")
-                        .foregroundColor(.red)
-                        .font(.caption)
-                }
-                
-                if case .error(let message) = serverManager.status {
-                    Text(message)
-                        .foregroundColor(.red)
-                        .font(.caption)
-                }
-            }
-            
-            Section {
-                Text("The HTTP server allows external tools to send notifications via HTTP requests instead of URL schemes. This prevents the app from being re-launched on each notification.")
+
+                Text("Allows external tools to send notifications via HTTP requests.")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -154,7 +124,7 @@ struct HTTPSettingsView: View {
             portString = String(serverManager.port)
         }
     }
-    
+
     private var statusColor: Color {
         switch serverManager.status {
         case .running:
@@ -421,7 +391,7 @@ struct AboutView: View {
     }
 
     private var updaterController: SPUStandardUpdaterController? {
-        (NSApp.delegate as? AppDelegate)?.updaterController
+        UpdaterManager.shared.updaterController
     }
 
     var body: some View {
@@ -451,40 +421,18 @@ struct AboutView: View {
                     .toggleStyle(.switch)
 
                 Button("Check for Updates") {
-                    updaterController?.checkForUpdates(nil)
+                    if let uc = updaterController {
+                        print("[Updater] Check for Updates clicked — triggering check")
+                        uc.checkForUpdates(nil)
+                    } else {
+                        print("[Updater] Check for Updates clicked but updaterController is nil")
+                    }
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(updaterController?.updater.canCheckForUpdates == false)
             }
             .padding(.horizontal)
 
-            Spacer()
-
-            VStack(spacing: 12) {
-                Text("Test Notifications")
-                    .font(.headline)
-
-                Button("Test Notification") {
-                    notificationManager.handleNotification(
-                        source: .claude,
-                        type: .complete,
-                        message: "Test notification"
-                    )
-                }
-                .buttonStyle(.borderedProminent)
-
-                HStack(spacing: 12) {
-                    Button("Mark All Read") {
-                        notificationManager.markAllAsRead()
-                    }
-
-                    Button("Clear All") {
-                        notificationManager.clearAll()
-                    }
-                    .foregroundColor(.red)
-                }
-            }
-            .padding()
         }
         .padding()
     }
