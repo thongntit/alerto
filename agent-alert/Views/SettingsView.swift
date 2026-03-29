@@ -1,5 +1,6 @@
 import SwiftUI
 import Sparkle
+import ServiceManagement
 
 struct SettingsView: View {
     var body: some View {
@@ -36,12 +37,36 @@ struct GeneralSettingsView: View {
     @AppStorage("selectedSound") private var selectedSound = "Glass"
 
     @StateObject private var serverManager = HTTPServerManager.shared
+    @StateObject private var launchAtLoginService = LaunchAtLoginService.shared
     @State private var portString: String = ""
 
     let availableSounds = ["Glass", "Ping", "Pop", "Purr", "Blow", "Hero", "Submarine"]
 
     var body: some View {
         Form {
+            Section("Startup") {
+                Toggle("Launch at Login", isOn: Binding(
+                    get: { launchAtLoginService.isEnabled },
+                    set: { enabled in
+                        Task {
+                            if enabled {
+                                launchAtLoginService.register()
+                            } else {
+                                launchAtLoginService.unregister()
+                            }
+                        }
+                    }
+                ))
+
+                if launchAtLoginService.status == .requiresApproval {
+                    Button("Open System Settings") {
+                        openLoginItemsSettings()
+                    }
+                    .buttonStyle(.link)
+                    .font(.caption)
+                }
+            }
+
             Section("Notifications") {
                 Toggle("Show overlay notification", isOn: $showOverlay)
 
@@ -122,6 +147,13 @@ struct GeneralSettingsView: View {
         .padding()
         .onAppear {
             portString = String(serverManager.port)
+            launchAtLoginService.refreshStatus()
+        }
+    }
+
+    private func openLoginItemsSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension") {
+            NSWorkspace.shared.open(url)
         }
     }
 
