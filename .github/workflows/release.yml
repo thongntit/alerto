@@ -60,14 +60,14 @@ jobs:
           mkdir -p sparkle_tools
           tar -xf sparkle.tar.xz -C sparkle_tools
 
-      - name: Sign DMG and generate appcast
+      - name: Sign app bundle and generate appcast
         env:
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           PUB_DATE=$(date -u "+%a, %d %b %Y %H:%M:%S +0000")
 
-          SIGN_OUTPUT=$(echo "$SPARKLE_PRIVATE_KEY" | ./sparkle_tools/bin/sign_update "${{ env.DMG_NAME }}" --ed-key-file -)
+          SIGN_OUTPUT=$(echo "$SPARKLE_PRIVATE_KEY" | ./sparkle_tools/bin/sign_update "build/Build/Products/Release/agent-alert.app" --ed-key-file -)
           SIGNATURE=$(echo "$SIGN_OUTPUT" | sed -n 's/.*sparkle:edSignature="\([^"]*\)".*/\1/p')
           FILE_SIZE=$(echo "$SIGN_OUTPUT" | sed -n 's/.*length="\([^"]*\)".*/\1/p')
 
