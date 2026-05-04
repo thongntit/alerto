@@ -2,6 +2,9 @@ name: Check Sparkle Key
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/check-sparkle-key.yml
 
 jobs:
   check:
