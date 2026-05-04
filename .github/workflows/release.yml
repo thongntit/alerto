@@ -54,7 +54,7 @@ jobs:
 
       - name: Install Sparkle tools
         run: |
-          SPARKLE_VERSION="2.7.0"
+          SPARKLE_VERSION="2.9.0"
           curl -sSL "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz" \
             -o sparkle.tar.xz
           mkdir -p sparkle_tools
@@ -91,6 +91,24 @@ jobs:
             </channel>
           </rss>
           EOF
+
+      - name: Validate appcast
+        run: |
+          SIGNATURE=$(grep -o 'sparkle:edSignature="[^"]*"' appcast.xml | cut -d'"' -f2)
+          FILE_SIZE=$(grep -o 'length="[^"]*"' appcast.xml | cut -d'"' -f2)
+          DMG_URL=$(grep -o 'url="[^"]*\.dmg"' appcast.xml | cut -d'"' -f2)
+
+          [ -z "$SIGNATURE" ] && echo "ERROR: missing edSignature" && exit 1
+          [ -z "$FILE_SIZE" ] && echo "ERROR: missing length" && exit 1
+          [ -z "$DMG_URL" ] && echo "ERROR: missing DMG url" && exit 1
+
+          ACTUAL_SIZE=$(stat -f%z "${{ env.DMG_NAME }}")
+          [ "$FILE_SIZE" != "$ACTUAL_SIZE" ] && echo "ERROR: length mismatch (appcast=$FILE_SIZE, actual=$ACTUAL_SIZE)" && exit 1
+
+          echo "Signature: $SIGNATURE"
+          echo "File size: $FILE_SIZE"
+          echo "DMG URL: $DMG_URL"
+          echo "Appcast validation passed"
 
       - name: Upload DMG and appcast to Release
         uses: softprops/action-gh-release@v1
