@@ -1,0 +1,34 @@
+name: Check Sparkle Key
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Sparkle tools
+        run: |
+          curl -sSL "https://github.com/sparkle-project/Sparkle/releases/download/2.9.0/Sparkle-2.9.0.tar.xz" -o sparkle.tar.xz
+          mkdir -p sparkle_tools
+          tar -xf sparkle.tar.xz -C sparkle_tools
+
+      - name: Derive public key from secret
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          EMBEDDED=$(plutil -extract SUPublicEDKey raw agent-alert/Info.plist)
+          DERIVED=$(echo "$SPARKLE_PRIVATE_KEY" | ./sparkle_tools/bin/sign_update --extract-edpubkey 2>&1 || echo "EXTRACT_FAILED")
+
+          echo "Info.plist SUPublicEDKey: $EMBEDDED"
+          echo "Derived from secret:      $DERIVED"
+
+          if [ "$EMBEDDED" = "$DERIVED" ]; then
+            echo "RESULT: keys match"
+          else
+            echo "RESULT: keys do NOT match — this is the bug"
+            exit 1
+          fi
