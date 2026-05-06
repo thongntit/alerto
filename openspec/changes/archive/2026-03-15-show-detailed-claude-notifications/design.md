@@ -1,6 +1,6 @@
 ## Context
 
-Agent Alert currently integrates with Claude Code hooks to show notifications when Claude needs attention or finishes tasks. However, the current implementation uses hardcoded messages in curl commands (e.g., "Claude needs attention", "Claude Code stopped"), which provides limited value to users.
+Alerto currently integrates with Claude Code hooks to show notifications when Claude needs attention or finishes tasks. However, the current implementation uses hardcoded messages in curl commands (e.g., "Claude needs attention", "Claude Code stopped"), which provides limited value to users.
 
 Claude Code hooks expose rich contextual information through JSON payloads:
 - **Notification hook**: Provides `message` content when Claude needs input/permission

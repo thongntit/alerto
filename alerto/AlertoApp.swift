@@ -3,12 +3,12 @@ import Combine
 import Sparkle
 
 @main
-struct AgentAlertApp: App {
+struct AlertoApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var notificationManager = NotificationManager.shared
 
     var body: some Scene {
-        MenuBarExtra("AgentAlert", systemImage: notificationManager.menubarIcon) {
+        MenuBarExtra("Alerto", systemImage: notificationManager.menubarIcon) {
             MenuBarView()
         }
         .menuBarExtraStyle(.window)

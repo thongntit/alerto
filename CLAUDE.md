@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Agent Alert** is a macOS menu bar application that displays intelligent notifications from Claude Code without interrupting your workflow. It runs as a menu bar utility (LSUIElement = true) with no dock icon.
+**Alerto** is a macOS menu bar application that displays intelligent notifications from Claude Code without interrupting your workflow. It runs as a menu bar utility (LSUIElement = true) with no dock icon.
 
 ## Commands
 
@@ -12,13 +12,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Build the project
-xcodebuild -project agent-alert.xcodeproj -scheme agentic-notifier -configuration Release build
+xcodebuild -project alerto.xcodeproj -scheme Alerto -configuration Release build
 
 # Build with derived data
-xcodebuild -project agent-alert.xcodeproj -scheme agentic-notifier -configuration Release -derivedDataPath build build
+xcodebuild -project alerto.xcodeproj -scheme Alerto -configuration Release -derivedDataPath build build
 
 # Open in Xcode
-open agent-alert.xcodeproj
+open alerto.xcodeproj
 ```
 
 ### HTTP API Testing
@@ -43,7 +43,7 @@ curl http://127.0.0.1:7531/health
 ## Architecture
 
 ### Entry Point
-- **AgentAlertApp.swift**: SwiftUI App with `@NSApplicationDelegateAdaptor(AppDelegate.self)`. Initializes managers on launch.
+- **AlertoApp.swift**: SwiftUI App with `@NSApplicationDelegateAdaptor(AppDelegate.self)`. Initializes managers on launch.
 
 ### Core Services (Singletons)
 - **NotificationManager**: Central hub for notification state, handles display, sound playback, and manages notification queue/history.
@@ -92,4 +92,4 @@ curl http://127.0.0.1:7531/health
 
 ## CI/CD
 
-GitHub Actions workflow (`.github/workflows/release.yml`) builds a DMG on GitHub releases using the `agentic-notifier` scheme.
+GitHub Actions workflow (`.github/workflows/release.yml`) builds a DMG on GitHub releases using the `Alerto` scheme.

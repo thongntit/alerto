@@ -25,7 +25,7 @@ class URLSchemeHandler {
     }
     
     private func handleURL(_ url: URL) {
-        guard url.scheme == "agent-alert" else { return }
+        guard url.scheme == "alerto" else { return }
         
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         let path = url.host

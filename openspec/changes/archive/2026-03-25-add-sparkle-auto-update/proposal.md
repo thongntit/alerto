@@ -1,6 +1,6 @@
 ## Why
 
-Agent Alert has no automatic update mechanism — users must manually download new releases from GitHub. Adding Sparkle-based auto-update removes this friction, ensuring users always run the latest version without any manual intervention.
+Alerto has no automatic update mechanism — users must manually download new releases from GitHub. Adding Sparkle-based auto-update removes this friction, ensuring users always run the latest version without any manual intervention.
 
 ## What Changes
 

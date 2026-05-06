@@ -1,9 +1,9 @@
 ## Context
 
-Agent Alert is a macOS menu bar app that displays AI agent notifications. Currently, Claude Code integration requires manual URL scheme setup. We need to automatically inject Claude Code hooks to send HTTP notifications.
+Alerto is a macOS menu bar app that displays AI agent notifications. Currently, Claude Code integration requires manual URL scheme setup. We need to automatically inject Claude Code hooks to send HTTP notifications.
 
 **Current State:**
-- Agent Alert uses URL scheme (`agent-alert://notify`) for notifications
+- Alerto uses URL scheme (`alerto://notify`) for notifications
 - Claude Code supports hooks that execute commands on events (TaskStart, TaskComplete, Stop)
 - No automatic configuration mechanism exists
 
@@ -52,7 +52,7 @@ Agent Alert is a macOS menu bar app that displays AI agent notifications. Curren
 
 **Rationale:**
 - Avoid hardcoded port conflicts
-- Agent Alert already uses 21452, try to maintain consistency
+- Alerto already uses 21452, try to maintain consistency
 
 ### 4. No External Dependencies
 
@@ -71,13 +71,13 @@ Agent Alert is a macOS menu bar app that displays AI agent notifications. Curren
 
 - **[Risk] Claude Code settings.json format changes** → Mitigation: Version check, graceful degradation
 - **[Risk] Port already in use** → Mitigation: Try alternative ports, show error if all fail
-- **[Risk] User has custom hooks** → Mitigation: Only remove Agent Alert hooks by ID, preserve others
+- **[Risk] User has custom hooks** → Mitigation: Only remove Alerto hooks by ID, preserve others
 
 ## Migration Plan
 
 1. First launch: Detect Claude Code, prompt user to enable hooks
 2. On enable: Write hooks to settings.json, start HTTP server
-3. On disable: Remove only Agent Alert hooks, stop HTTP server
+3. On disable: Remove only Alerto hooks, stop HTTP server
 4. No migration needed - fresh feature
 
 ## Open Questions

@@ -2,7 +2,7 @@
 
 ### Requirement: Launch at Login Toggle
 
-The system SHALL provide a toggle in General Settings that allows the user to enable or disable automatic launch of Agent Alert on login.
+The system SHALL provide a toggle in General Settings that allows the user to enable or disable automatic launch of Alerto on login.
 
 #### Scenario: User enables launch at login
 - **WHEN** the user toggles "Launch at Login" to ON
