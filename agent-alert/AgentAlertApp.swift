@@ -16,67 +16,87 @@ struct AgentAlertApp: App {
 }
 
 // MARK: - Updater Delegate
+//
+// SPUUpdaterDelegate methods are called from a non-main thread internally by Sparkle.
+// All protocol methods must be marked `nonisolated` to avoid isolation crossing violations.
 
-class UpdaterDelegate: NSObject, SPUUpdaterDelegate {
-    func updater(_ updater: SPUUpdater, didFinishInitializationSuccessfully successfully: Bool) {
-        print("[UpdaterDelegate] didFinishInitializationSuccessfully: \(successfully)")
+final class UpdaterDelegate: NSObject, SPUUpdaterDelegate {
+    nonisolated func updater(_ updater: SPUUpdater, didFinishInitializationSuccessfully successfully: Bool) {
+        NSLog("[UpdaterDelegate] didFinishInitializationSuccessfully: %@", successfully ? "YES" : "NO")
     }
 
-    func updaterDidNotFindUpdate(_ updater: SPUUpdater) {
-        print("[UpdaterDelegate] didNotFindUpdate")
+    nonisolated func updaterDidNotFindUpdate(_ updater: SPUUpdater) {
+        NSLog("[UpdaterDelegate] didNotFindUpdate")
     }
 
-    func updater(_ updater: SPUUpdater, didFindValidUpdate newVersion: String) {
-        print("[UpdaterDelegate] didFindValidUpdate: \(newVersion)")
+    nonisolated func updater(_ updater: SPUUpdater, didFindValidUpdate newVersion: String) {
+        NSLog("[UpdaterDelegate] didFindValidUpdate: %@", newVersion)
     }
 
-    func updater(_ updater: SPUUpdater, failedToFetchUpdateDataWithError error: Error) {
-        print("[UpdaterDelegate] failedToFetchUpdateDataWithError: \(error)")
+    nonisolated func updater(_ updater: SPUUpdater, failedToFetchUpdateDataWithError error: Error) {
+        let nsError = error as NSError
+        NSLog("[UpdaterDelegate] failedToFetchUpdateDataWithError: %@ (code: %ld)", nsError.localizedDescription, nsError.code)
     }
 
-    func updater(_ updater: SPUUpdater, willInstallUpdateWithVersion version: String) {
-        print("[UpdaterDelegate] willInstallUpdate: \(version)")
+    nonisolated func updater(_ updater: SPUUpdater, willInstallUpdateWithVersion version: String) {
+        NSLog("[UpdaterDelegate] willInstallUpdate: %@", version)
     }
 }
 
 // MARK: - Updater Manager (Singleton)
 
 @MainActor
-class UpdaterManager: ObservableObject {
+final class UpdaterManager: ObservableObject {
     static let shared = UpdaterManager()
 
     @Published private(set) var updaterController: SPUStandardUpdaterController?
-    private let delegate = UpdaterDelegate()
+    private let delegate: UpdaterDelegate
 
     private init() {
+        self.delegate = UpdaterDelegate()
         initialize()
     }
 
     private func initialize() {
-        print("[UpdaterManager] Initializing...")
+        NSLog("[UpdaterManager] Initializing...")
 
         // Log bundle info for debugging
-        print("[UpdaterManager] Bundle ID: \(Bundle.main.bundleIdentifier ?? "nil")")
-        print("[UpdaterManager] SUFeedURL: \(Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") ?? "nil")")
-        print("[UpdaterManager] SUPublicEDKey: set = \(Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") != nil)")
+        NSLog("[UpdaterManager] Bundle ID: %@", Bundle.main.bundleIdentifier ?? "nil")
+        NSLog("[UpdaterManager] SUFeedURL: %@", (Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") as? String) ?? "nil")
+        NSLog("[UpdaterManager] SUPublicEDKey: %@", (Bundle.main.object(forInfoDictionaryKey: "SUPublicEDKey") != nil) ? "set" : "NOT SET")
 
         do {
-            print("[UpdaterManager] Creating SPUStandardUpdaterController...")
+            NSLog("[UpdaterManager] Creating SPUStandardUpdaterController...")
             let controller = try SPUStandardUpdaterController(
                 startingUpdater: false,
                 updaterDelegate: delegate,
                 userDriverDelegate: nil
             )
-            print("[UpdaterManager] SPUStandardUpdaterController created OK")
+            NSLog("[UpdaterManager] SPUStandardUpdaterController created OK")
 
-            print("[UpdaterManager] Starting updater...")
+            NSLog("[UpdaterManager] Starting updater...")
             try controller.updater.start()
-            print("[UpdaterManager] updater.start() succeeded")
+            NSLog("[UpdaterManager] updater.start() succeeded")
+
+            // Apply persisted auto-check preference
+            let autoCheck = UserDefaults.standard.bool(forKey: "SUEnableAutomaticChecks")
+            controller.updater.automaticallyChecksForUpdates = autoCheck
+            NSLog("[UpdaterManager] automaticallyChecksForUpdates = %@", autoCheck ? "YES" : "NO")
+
             self.updaterController = controller
         } catch {
-            print("[UpdaterManager] Updater FAILED: \(error)")
+            let nsError = error as NSError
+            NSLog("[UpdaterManager] Updater FAILED: %@ (code: %ld)", nsError.localizedDescription, nsError.code)
             self.updaterController = nil
         }
+    }
+
+    /// Call this from the Settings UI toggle to enable/disable auto-update checks.
+    func setAutomaticallyChecksForUpdates(_ enabled: Bool) {
+        guard let controller = updaterController else { return }
+        controller.updater.automaticallyChecksForUpdates = enabled
+        UserDefaults.standard.set(enabled, forKey: "SUEnableAutomaticChecks")
+        NSLog("[UpdaterManager] automaticallyChecksForUpdates set to %@", enabled ? "YES" : "NO")
     }
 }
 
@@ -86,13 +106,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @MainActor var updaterManager: UpdaterManager { UpdaterManager.shared }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        print("[AppDelegate] applicationDidFinishLaunching")
+        NSLog("[AppDelegate] applicationDidFinishLaunching")
         URLSchemeHandler.shared.registerHandler()
         NotificationOverlayManager.shared.setup()
 
         // Trigger initialization by accessing the singleton
         _ = updaterManager.updaterController
-        print("[AppDelegate] UpdaterManager shared initialized")
+        NSLog("[AppDelegate] UpdaterManager shared initialized")
 
         Task {
             await HTTPServerManager.shared.start()

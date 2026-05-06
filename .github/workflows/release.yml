@@ -20,14 +20,7 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "DMG_NAME=agent-alert-${VERSION}.dmg" >> $GITHUB_ENV
-          echo "MARKETING_VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "Current project version: ${VERSION}"
-
-      - name: Update MARKETING_VERSION and CURRENT_PROJECT_VERSION in project
-        run: |
-          sed -i '' "s/MARKETING_VERSION = [0-9.]*;/MARKETING_VERSION = ${{ env.MARKETING_VERSION }};/g" agent-alert.xcodeproj/project.pbxproj
-          sed -i '' "s/CURRENT_PROJECT_VERSION = [0-9.]*;/CURRENT_PROJECT_VERSION = ${{ env.MARKETING_VERSION }};/g" agent-alert.xcodeproj/project.pbxproj
-          echo "Updated MARKETING_VERSION and CURRENT_PROJECT_VERSION to ${{ env.MARKETING_VERSION }}"
+          echo "Building version: ${VERSION}"
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -40,6 +33,8 @@ jobs:
             -scheme agentic-notifier \
             -configuration Release \
             -derivedDataPath build \
+            MARKETING_VERSION=${{ env.VERSION }} \
+            CURRENT_PROJECT_VERSION=${{ env.VERSION }} \
             clean build
 
       - name: Create DMG
@@ -60,39 +55,47 @@ jobs:
           mkdir -p sparkle_tools
           tar -xf sparkle.tar.xz -C sparkle_tools
 
-      # NOTE: sign_update uses NSWorkspace to open the .app bundle, which is
-      # blocked by SIP on GitHub Actions runners. Signing must be done locally.
-      # Run this locally after downloading the DMG:
-      #   ./sparkle_tools/bin/sign_update "agent-alert.app" --ed-key-file /path/to/ed_key
-      # Then update the appcast.xml with the real signature and re-upload.
-
-      - name: Generate appcast with placeholder signature
+      - name: Sign DMG with Sparkle EdDSA key
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          if [ -z "$SPARKLE_PRIVATE_KEY" ]; then
+            echo "ERROR: SPARKLE_PRIVATE_KEY secret is not configured. Add it under Settings > Secrets and variables > Actions." >&2
+            exit 1
+          fi
+          SIGNATURE=$(printf '%s' "$SPARKLE_PRIVATE_KEY" | ./sparkle_tools/bin/sign_update --ed-key-file - -p "${{ env.DMG_NAME }}")
+          if [ -z "$SIGNATURE" ]; then
+            echo "ERROR: sign_update returned empty signature" >&2
+            exit 1
+          fi
+          echo "ED_SIGNATURE=${SIGNATURE}" >> "$GITHUB_ENV"
+          echo "DMG signed: ${SIGNATURE}"
+
+      - name: Generate appcast.xml
+        run: |
           PUB_DATE=$(date -u "+%a, %d %b %Y %H:%M:%S +0000")
           FILE_SIZE=$(stat -f%z "${{ env.DMG_NAME }}")
 
           cat > appcast.xml <<EOF
           <?xml version="1.0" encoding="utf-8"?>
-          <rss version="2.0" xmlns:sparkle="http://www.andymatonline.com/xml/sparkle/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+          <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
             <channel>
               <title>Agent Alert</title>
               <item>
-                <title>Version ${VERSION}</title>
-                <sparkle:version>${VERSION}</sparkle:version>
-                <sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>
+                <title>Version ${{ env.VERSION }}</title>
+                <sparkle:version>${{ env.VERSION }}</sparkle:version>
+                <sparkle:shortVersionString>${{ env.VERSION }}</sparkle:shortVersionString>
                 <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
                 <pubDate>${PUB_DATE}</pubDate>
                 <enclosure
                   url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/${{ env.DMG_NAME }}"
-                  sparkle:edSignature="REPLACE_WITH_REAL_SIGNATURE"
+                  sparkle:edSignature="${{ env.ED_SIGNATURE }}"
                   length="${FILE_SIZE}"
                   type="application/octet-stream"/>
               </item>
             </channel>
           </rss>
           EOF
-          echo "appcast.xml generated with placeholder signature"
           cat appcast.xml
 
       - name: Validate appcast

@@ -415,8 +415,7 @@ struct CodeBlockView: View {
 }
 
 struct AboutView: View {
-    @ObservedObject var notificationManager = NotificationManager.shared
-    @AppStorage("SUEnableAutomaticChecks") private var automaticallyChecksForUpdates = true
+    @ObservedObject private var notificationManager = NotificationManager.shared
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
@@ -424,6 +423,10 @@ struct AboutView: View {
 
     private var updaterController: SPUStandardUpdaterController? {
         UpdaterManager.shared.updaterController
+    }
+
+    private var isAutoCheckEnabled: Bool {
+        updaterController?.updater.automaticallyChecksForUpdates ?? false
     }
 
     var body: some View {
@@ -449,15 +452,19 @@ struct AboutView: View {
             Divider()
 
             VStack(spacing: 12) {
-                Toggle("Automatically check for updates", isOn: $automaticallyChecksForUpdates)
-                    .toggleStyle(.switch)
+                Toggle("Automatically check for updates", isOn: Binding(
+                    get: { isAutoCheckEnabled },
+                    set: { enabled in
+                        Task { @MainActor in
+                            UpdaterManager.shared.setAutomaticallyChecksForUpdates(enabled)
+                        }
+                    }
+                ))
+                .toggleStyle(.switch)
 
                 Button("Check for Updates") {
                     if let uc = updaterController {
-                        print("[Updater] Check for Updates clicked — triggering check")
                         uc.checkForUpdates(nil)
-                    } else {
-                        print("[Updater] Check for Updates clicked but updaterController is nil")
                     }
                 }
                 .buttonStyle(.borderedProminent)
