@@ -24,6 +24,16 @@
 	<key>SUFeedURL</key>
 	<string>https://github.com/thongntit/agent-alert/releases/latest/download/appcast.xml</string>
 	<key>SUPublicEDKey</key>
-	<string>tFhZhBWDcu+jkwclJoZ0rLIyXWSUJ/OUQQhjCykLfYs=</string>
+	<string>sElwfDTSickg4KUpbD2j4JnXimYVt1DJBvvvy36QS+k=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUAutomaticallyUpdate</key>
+	<true/>
+	<key>SUAllowsAutomaticUpdates</key>
+	<true/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
+	<key>SUEnableSystemProfiling</key>
+	<false/>
 </dict>
 </plist>
