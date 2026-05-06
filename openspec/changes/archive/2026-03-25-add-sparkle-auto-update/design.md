@@ -1,6 +1,6 @@
 ## Context
 
-Agent Alert is an unsigned macOS menu bar app distributed as a DMG via GitHub releases. There is no current update mechanism. Users must manually download new releases. The app uses Swift Package Manager for dependencies (Hummingbird, ServiceLifecycle). Releases are built via GitHub Actions and published as GitHub release assets.
+Alerto is an unsigned macOS menu bar app distributed as a DMG via GitHub releases. There is no current update mechanism. Users must manually download new releases. The app uses Swift Package Manager for dependencies (Hummingbird, ServiceLifecycle). Releases are built via GitHub Actions and published as GitHub release assets.
 
 Sparkle is the de facto standard for auto-update in non-App-Store macOS apps. Sparkle 2.x supports SPM, requires EdDSA signatures on update packages (separate from Apple code signing), and handles all update UI natively.
 

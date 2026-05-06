@@ -1,6 +1,6 @@
 ## Context
 
-Agent Alert is a macOS menu bar utility (`LSUIElement = true`, no dock icon) that receives notifications from Claude Code via a local HTTP server. The app currently has no way to start automatically on login, requiring users to manually launch it each session.
+Alerto is a macOS menu bar utility (`LSUIElement = true`, no dock icon) that receives notifications from Claude Code via a local HTTP server. The app currently has no way to start automatically on login, requiring users to manually launch it each session.
 
 This design covers adding launch-at-login support using `SMAppService.mainApp` from the `ServiceManagement` framework.
 

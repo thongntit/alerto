@@ -9,7 +9,7 @@ class LaunchAtLoginService: ObservableObject {
 
     @Published private(set) var status: SMAppService.Status
 
-    private let logger = Logger(label: "com.agent-alert.launch-at-login")
+    private let logger = Logger(label: "com.alerto.launch-at-login")
 
     private init() {
         self.status = SMAppService.mainApp.status

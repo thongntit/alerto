@@ -326,9 +326,9 @@ struct ClaudeCodeIntegrationView: View {
     }
 
     private func refreshHookStates() {
-        hookStopEnabled = hookManager.isHookInstalled(hookId: "agent-alert:stop")
-        hookNotificationEnabled = hookManager.isHookInstalled(hookId: "agent-alert:notification")
-        hookSessionEndEnabled = hookManager.isHookInstalled(hookId: "agent-alert:session-end")
+        hookStopEnabled = hookManager.isHookInstalled(hookId: "alerto:stop")
+        hookNotificationEnabled = hookManager.isHookInstalled(hookId: "alerto:notification")
+        hookSessionEndEnabled = hookManager.isHookInstalled(hookId: "alerto:session-end")
     }
 
     private func toggleHook(_ hookName: String, enabled: Bool) {
@@ -436,7 +436,7 @@ struct AboutView: View {
                 .frame(width: 64, height: 64)
                 .cornerRadius(12)
 
-            Text("AgentAlert")
+            Text("Alerto")
                 .font(.title)
                 .fontWeight(.bold)
 

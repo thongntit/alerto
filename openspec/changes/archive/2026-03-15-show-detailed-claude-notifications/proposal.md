@@ -1,6 +1,6 @@
 ## Why
 
-Currently, Agent Alert displays hardcoded notification messages when Claude Code triggers hooks (like "Claude needs your input" or "Task completed"). This provides limited value since users can't see what's actually happening. Claude Code hooks expose rich contextual information including message content, prompts, and tool details that could make notifications far more useful.
+Currently, Alerto displays hardcoded notification messages when Claude Code triggers hooks (like "Claude needs your input" or "Task completed"). This provides limited value since users can't see what's actually happening. Claude Code hooks expose rich contextual information including message content, prompts, and tool details that could make notifications far more useful.
 
 ## What Changes
 

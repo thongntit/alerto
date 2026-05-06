@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "BA5B86FC2F3EF06500B518EC"
-               BuildableName = "agent-alert.app"
-               BlueprintName = "agent-alert"
-               ReferencedContainer = "container:agent-alert.xcodeproj">
+               BuildableName = "Alerto.app"
+               BlueprintName = "Alerto"
+               ReferencedContainer = "container:alerto.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "BA5B86FC2F3EF06500B518EC"
-            BuildableName = "agent-alert.app"
-            BlueprintName = "agent-alert"
-            ReferencedContainer = "container:agent-alert.xcodeproj">
+            BuildableName = "Alerto.app"
+            BlueprintName = "Alerto"
+            ReferencedContainer = "container:alerto.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "BA5B86FC2F3EF06500B518EC"
-            BuildableName = "agent-alert.app"
-            BlueprintName = "agent-alert"
-            ReferencedContainer = "container:agent-alert.xcodeproj">
+            BuildableName = "Alerto.app"
+            BlueprintName = "Alerto"
+            ReferencedContainer = "container:alerto.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

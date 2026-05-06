@@ -33,7 +33,7 @@ class HTTPServerManager: ObservableObject {
     private var serviceGroup: ServiceGroup?
     private var serverTask: Task<Void, Never>?
     private var startTime: Date?
-    private let logger = Logger(label: "com.agent-alert.http-server")
+    private let logger = Logger(label: "com.alerto.http-server")
     
     private init() {
         if let savedPort = UserDefaults.standard.object(forKey: "httpPort") as? Int {
@@ -68,7 +68,7 @@ class HTTPServerManager: ObservableObject {
                 router: router,
                 configuration: .init(
                     address: .hostname("127.0.0.1", port: self.port),
-                    serverName: "agent-alert"
+                    serverName: "alerto"
                 )
             )
             

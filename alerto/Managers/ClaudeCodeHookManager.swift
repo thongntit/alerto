@@ -16,13 +16,13 @@ class ClaudeCodeHookManager: ObservableObject {
 
     // MARK: - Hook ID Prefix
 
-    static let hookIdPrefix = "agent-alert:"
+    static let hookIdPrefix = "alerto:"
 
     struct HookIds {
-        static let stop = "agent-alert:stop"
-        static let subagentStop = "agent-alert:subagent-stop"
-        static let notification = "agent-alert:notification"
-        static let sessionEnd = "agent-alert:session-end"
+        static let stop = "alerto:stop"
+        static let subagentStop = "alerto:subagent-stop"
+        static let notification = "alerto:notification"
+        static let sessionEnd = "alerto:session-end"
     }
 
     // MARK: - Detection
@@ -47,7 +47,7 @@ class ClaudeCodeHookManager: ObservableObject {
         return false
     }
 
-    /// Check if any Agent Alert hook is installed
+    /// Check if any Alerto hook is installed
     func isAnyHookInstalled() -> Bool {
         guard let settings = loadSettings(),
               let hooks = settings["hooks"] as? [String: [[String: Any]]] else {
@@ -65,7 +65,7 @@ class ClaudeCodeHookManager: ObservableObject {
     // MARK: - Installation
 
     /// Install Claude Code hooks (idempotent)
-    /// - Parameter port: The port Agent Alert HTTP server is running on
+    /// - Parameter port: The port Alerto HTTP server is running on
     func installHooks(port: Int) throws {
         var settings = loadSettings() ?? [:]
 
@@ -94,7 +94,7 @@ class ClaudeCodeHookManager: ObservableObject {
     /// Install a single hook by name
     /// - Parameters:
     ///   - name: Hook name (stop, notification, session-end)
-    ///   - port: The port Agent Alert HTTP server is running on
+    ///   - port: The port Alerto HTTP server is running on
     func installHook(name: String, port: Int) throws {
         var settings = loadSettings() ?? [:]
 
@@ -227,13 +227,13 @@ class ClaudeCodeHookManager: ObservableObject {
 
     // MARK: - Uninstallation
 
-    /// Uninstall all Agent Alert hooks (by prefix)
+    /// Uninstall all Alerto hooks (by prefix)
     func uninstallHooks() throws {
         guard var settings = loadSettings() else { return }
 
         var hooks = settings["hooks"] as? [String: [[String: Any]]] ?? [:]
 
-        // Remove all hooks with agent-alert: prefix
+        // Remove all hooks with alerto: prefix
         let prefix = Self.hookIdPrefix
 
         for (event, eventHooks) in hooks {

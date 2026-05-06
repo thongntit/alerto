@@ -1,6 +1,6 @@
 ## Why
 
-When notifications fail to appear, it is impossible to determine whether the problem is in Agent Alert (e.g., the HTTP server did not receive the request, parsing failed, or the overlay was suppressed) or in Claude Code (e.g., the hook never fired). A structured, persistent logging system would capture every step of the notification pipeline and surface that information directly inside the app, eliminating guesswork during debugging.
+When notifications fail to appear, it is impossible to determine whether the problem is in Alerto (e.g., the HTTP server did not receive the request, parsing failed, or the overlay was suppressed) or in Claude Code (e.g., the hook never fired). A structured, persistent logging system would capture every step of the notification pipeline and surface that information directly inside the app, eliminating guesswork during debugging.
 
 ## What Changes
 

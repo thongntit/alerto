@@ -1,6 +1,6 @@
 ## Why
 
-Claude Code can trigger notifications for task lifecycle events (TaskStart, TaskComplete, Stop), but currently requires manual URL scheme configuration to integrate with Agent Alert. We need an automatic hook injection mechanism that configures Claude Code to send HTTP notifications to Agent Alert without user manual setup.
+Claude Code can trigger notifications for task lifecycle events (TaskStart, TaskComplete, Stop), but currently requires manual URL scheme configuration to integrate with Alerto. We need an automatic hook injection mechanism that configures Claude Code to send HTTP notifications to Alerto without user manual setup.
 
 ## What Changes
 
@@ -14,7 +14,7 @@ Claude Code can trigger notifications for task lifecycle events (TaskStart, Task
 
 ### New Capabilities
 
-- **claude-code-hook**: Inject Claude Code hooks to send HTTP notifications to Agent Alert
+- **claude-code-hook**: Inject Claude Code hooks to send HTTP notifications to Alerto
 - **http-notification-receiver**: HTTP server endpoint to receive notifications from hooks
 
 ### Modified Capabilities
@@ -24,5 +24,5 @@ Claude Code can trigger notifications for task lifecycle events (TaskStart, Task
 ## Impact
 
 - New files: `Managers/ClaudeCodeHookManager.swift`, `Services/HTTPServerService.swift`
-- Modified files: `AgentAlertApp.swift` (register HTTP server), `Views/SettingsView.swift` (hook toggle)
+- Modified files: `AlertoApp.swift` (register HTTP server), `Views/SettingsView.swift` (hook toggle)
 - No external dependencies required (uses native Swift NIO for HTTP)
