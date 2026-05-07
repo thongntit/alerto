@@ -74,6 +74,35 @@ enum HookType: String, Codable {
     case userPromptSubmit = "UserPromptSubmit"
     case permissionRequest = "PermissionRequest"
     case unknown = "unknown"
+
+    var contextTitle: String? {
+        switch self {
+        case .notification: return "Claude needs your input"
+        case .stop: return "Claude finished responding"
+        case .subagentStop: return "Subagent completed"
+        case .sessionEnd: return "Session ended"
+        case .userPromptSubmit: return "Processing your prompt"
+        case .permissionRequest: return "Permission requested"
+        case .unknown: return nil
+        }
+    }
+}
+
+/// User-selected presentation style for incoming notifications.
+enum NotificationStyle: String, CaseIterable, Identifiable {
+    case overlay
+    case system
+    case off
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .overlay: return "Overlay"
+        case .system: return "System notification"
+        case .off: return "Off"
+        }
+    }
 }
 
 struct AgenticNotification: Identifiable, Codable {
@@ -105,5 +134,14 @@ struct AgenticNotification: Identifiable, Codable {
             return String(message.prefix(maxLength)) + "..."
         }
         return message
+    }
+
+    /// Canonical display mapping shared by the overlay view and system-notification service
+    /// so titles and bodies cannot drift between presentation modes.
+    var displayContent: (title: String, subtitle: String?, body: String) {
+        if let context = hookType?.contextTitle {
+            return (title: context, subtitle: source.displayName, body: truncatedMessage)
+        }
+        return (title: source.displayName, subtitle: nil, body: truncatedMessage)
     }
 }

@@ -12,7 +12,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		BA5B86FD2F3EF06500B518EC /* Alerto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Alerto.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BA5B86FD2F3EF06500B518EC /* Alerto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Alerto.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -52,7 +52,7 @@
 		BA5B86F42F3EF06500B518EC = {
 			isa = PBXGroup;
 			children = (
-				BA5B86FF2F3EF06500B518EC /* Alerto */,
+				BA5B86FF2F3EF06500B518EC /* alerto */,
 				BA5B86FE2F3EF06500B518EC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -81,7 +81,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				BA5B86FF2F3EF06500B518EC /* Alerto */,
+				BA5B86FF2F3EF06500B518EC /* alerto */,
 			);
 			name = Alerto;
 			packageProductDependencies = (
@@ -107,7 +107,7 @@
 					};
 				};
 			};
-			buildConfigurationList = BA5B86F82F3EF06500B518EC /* Build configuration list for PBXProject "Alerto" */;
+			buildConfigurationList = BA5B86F82F3EF06500B518EC /* Build configuration list for PBXProject "alerto" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -281,8 +281,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "alerto/Info.plist";
-				"INFOPLIST_FILE[sdk=*]" = "alerto/Info.plist";
+				INFOPLIST_FILE = alerto/Info.plist;
+				"INFOPLIST_FILE[sdk=*]" = alerto/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Alerto;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -292,7 +292,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 2.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "thongnt.alerto";
+				PRODUCT_BUNDLE_IDENTIFIER = thongnt.alerto;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -316,7 +316,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "alerto/Info.plist";
+				INFOPLIST_FILE = alerto/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Alerto;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -326,7 +326,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 2.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "thongnt.alerto";
+				PRODUCT_BUNDLE_IDENTIFIER = thongnt.alerto;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -341,7 +341,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		BA5B86F82F3EF06500B518EC /* Build configuration list for PBXProject "Alerto" */ = {
+		BA5B86F82F3EF06500B518EC /* Build configuration list for PBXProject "alerto" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BA5B87062F3EF06600B518EC /* Debug */,
