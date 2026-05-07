@@ -15,7 +15,7 @@
 
 ## 3. App Integration
 
-- [x] 3.1 Register HTTP server in AgentAlertApp.swift on launch
+- [x] 3.1 Register HTTP server in AlertoApp.swift on launch
 - [x] 3.2 Add hook configuration to AppDelegate
 - [x] 3.3 Add port storage in AppStorage
 

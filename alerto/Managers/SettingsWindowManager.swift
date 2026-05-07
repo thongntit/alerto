@@ -40,7 +40,7 @@ class SettingsWindowManager {
         )
 
         window.contentViewController = hostingController
-        window.title = "AgentAlert Settings"
+        window.title = "Alerto Settings"
         window.isReleasedWhenClosed = false
 
         // Make window float above other windows and stay visible

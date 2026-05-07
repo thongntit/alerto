@@ -1,6 +1,6 @@
 ## Why
 
-The current URL scheme-based hook communication (`open 'agent-alert://...'`) causes macOS to re-launch or re-activate the app on every hook invocation, preventing clean app termination and creating unnecessary process overhead. Switching to local HTTP socket communication allows the app to run as a persistent background server that receives requests without being "summoned," enabling proper lifecycle management and eliminating the re-launch behavior.
+The current URL scheme-based hook communication (`open 'alerto://...'`) causes macOS to re-launch or re-activate the app on every hook invocation, preventing clean app termination and creating unnecessary process overhead. Switching to local HTTP socket communication allows the app to run as a persistent background server that receives requests without being "summoned," enabling proper lifecycle management and eliminating the re-launch behavior.
 
 ## What Changes
 

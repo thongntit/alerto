@@ -1,6 +1,6 @@
 ## Why
 
-Agent Alert runs as a menu bar utility with no dock icon. Currently, users must manually launch the app after each login. This breaks the intended experience: users who want Claude Code notifications throughout their workday must remember to start Agent Alert every morning. Adding launch-at-login support closes this gap and makes the app feel like a persistent, reliable part of their workflow.
+Alerto runs as a menu bar utility with no dock icon. Currently, users must manually launch the app after each login. This breaks the intended experience: users who want Claude Code notifications throughout their workday must remember to start Alerto every morning. Adding launch-at-login support closes this gap and makes the app feel like a persistent, reliable part of their workflow.
 
 ## What Changes
 

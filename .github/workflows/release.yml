@@ -19,7 +19,7 @@ jobs:
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "DMG_NAME=agent-alert-${VERSION}.dmg" >> $GITHUB_ENV
+          echo "DMG_NAME=Alerto-${VERSION}.dmg" >> $GITHUB_ENV
           echo "Building version: ${VERSION}"
 
       - name: Setup Xcode
@@ -29,8 +29,8 @@ jobs:
 
       - name: Build app
         run: |
-          xcodebuild -project agent-alert.xcodeproj \
-            -scheme agentic-notifier \
+          xcodebuild -project alerto.xcodeproj \
+            -scheme Alerto \
             -configuration Release \
             -derivedDataPath build \
             MARKETING_VERSION=${{ env.VERSION }} \
@@ -40,9 +40,9 @@ jobs:
       - name: Create DMG
         run: |
           mkdir -p dmg_temp
-          cp -r build/Build/Products/Release/agent-alert.app dmg_temp/
+          cp -r build/Build/Products/Release/Alerto.app dmg_temp/
           ln -sf /Applications dmg_temp/Applications
-          hdiutil create -volname "agent-alert" \
+          hdiutil create -volname "Alerto" \
             -srcfolder dmg_temp \
             -ov -format UDZO \
             "${{ env.DMG_NAME }}"
@@ -80,7 +80,7 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?>
           <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
             <channel>
-              <title>Agent Alert</title>
+              <title>Alerto</title>
               <item>
                 <title>Version ${{ env.VERSION }}</title>
                 <sparkle:version>${{ env.VERSION }}</sparkle:version>

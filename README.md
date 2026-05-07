@@ -1,7 +1,7 @@
-# Agent Alert
+# Alerto
 
 <p align="center">
-  <img src="agent-alert/Assets.xcassets/AppIcon.imageset/AppIcon-1024.png" alt="Agent Alert Icon" width="128" height="128">
+  <img src="alerto/Assets.xcassets/AppIcon.imageset/AppIcon-1024.png" alt="Alerto Icon" width="128" height="128">
 </p>
 
 A macOS menu bar application that displays intelligent notifications from Claude Code without interrupting your workflow.
@@ -16,13 +16,13 @@ A macOS menu bar application that displays intelligent notifications from Claude
 
 ## Installation
 
-Download the latest release from the [Releases page](https://github.com/hiraism/agent-alert/releases) and install the DMG.
+Download the latest release from the [Releases page](https://github.com/thongntit/alerto/releases) and install the DMG.
 
 ## Usage
 
 ### HTTP API
 
-Agent Alert exposes a local HTTP server on port 7531 for receiving notifications from Claude Code:
+Alerto exposes a local HTTP server on port 7531 for receiving notifications from Claude Code:
 
 ```bash
 # POST notification
@@ -36,7 +36,7 @@ curl http://127.0.0.1:7531/health
 
 ### Claude Code Hook Configuration
 
-Add the following to your Claude Code settings to send notifications to Agent Alert:
+Add the following to your Claude Code settings to send notifications to Alerto:
 
 ```json
 {

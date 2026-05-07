@@ -1,6 +1,6 @@
 ## Context
 
-Agent Alert is a macOS menu bar app that receives HTTP POST requests on port 7531, parses them into `AgenticNotification` objects, and optionally shows an overlay and plays a sound. Currently the app emits debug output only via `print()` statements and the Swift `Logger` from the `Logging` package — neither of which is accessible to the end user at runtime.
+Alerto is a macOS menu bar app that receives HTTP POST requests on port 7531, parses them into `AgenticNotification` objects, and optionally shows an overlay and plays a sound. Currently the app emits debug output only via `print()` statements and the Swift `Logger` from the `Logging` package — neither of which is accessible to the end user at runtime.
 
 When notifications are silently dropped (e.g., because the overlay setting is off, or because a parse step fails silently), there is no way for the user to diagnose the issue without attaching Xcode or running Console.app.
 
@@ -47,7 +47,7 @@ The change is purely additive: no HTTP API changes, no notification-behaviour ch
 
 ### Decision 4: Persistence via a single JSON file in Application Support
 
-**Choice**: On each new log entry, `AppLogger` serialises the ring buffer to `~/Library/Application Support/AgentAlert/app.log.json` asynchronously on a background task. On launch, it reads this file to pre-populate the in-memory buffer.
+**Choice**: On each new log entry, `AppLogger` serialises the ring buffer to `~/Library/Application Support/Alerto/app.log.json` asynchronously on a background task. On launch, it reads this file to pre-populate the in-memory buffer.
 
 **Rationale**: Gives the user access to logs from the previous session without a complex database. The async write ensures the main thread is never blocked.
 
@@ -69,7 +69,7 @@ The change is purely additive: no HTTP API changes, no notification-behaviour ch
 ## Migration Plan
 
 1. Add `AppLogger.swift` and `LogViewerView.swift` to the Xcode project target.
-2. Wire `AppLogger` initialisation in `AgentAlertApp.swift` (or lazily via `AppLogger.shared`).
+2. Wire `AppLogger` initialisation in `AlertoApp.swift` (or lazily via `AppLogger.shared`).
 3. Add `AppLogger.shared.log(...)` calls to `HTTPServerManager` and `NotificationManager`.
 4. Add the Logs tab to `SettingsView`.
 5. No schema migrations, no API changes. Rollback: remove the four touched files and the tab addition.

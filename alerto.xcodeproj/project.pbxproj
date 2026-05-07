@@ -12,26 +12,26 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		BA5B86FD2F3EF06500B518EC /* agent-alert.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "agent-alert.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BA5B86FD2F3EF06500B518EC /* Alerto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Alerto.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E5A07FE62F667FA10079F469 /* Exceptions for "agent-alert" folder in "agent-alert" target */ = {
+		E5A07FE62F667FA10079F469 /* Exceptions for "alerto" folder in "Alerto" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = BA5B86FC2F3EF06500B518EC /* agent-alert */;
+			target = BA5B86FC2F3EF06500B518EC /* Alerto */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		BA5B86FF2F3EF06500B518EC /* agent-alert */ = {
+		BA5B86FF2F3EF06500B518EC /* alerto */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				E5A07FE62F667FA10079F469 /* Exceptions for "agent-alert" folder in "agent-alert" target */,
+				E5A07FE62F667FA10079F469 /* Exceptions for "alerto" folder in "Alerto" target */,
 			);
-			path = "agent-alert";
+			path = alerto;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -52,7 +52,7 @@
 		BA5B86F42F3EF06500B518EC = {
 			isa = PBXGroup;
 			children = (
-				BA5B86FF2F3EF06500B518EC /* agent-alert */,
+				BA5B86FF2F3EF06500B518EC /* alerto */,
 				BA5B86FE2F3EF06500B518EC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -60,7 +60,7 @@
 		BA5B86FE2F3EF06500B518EC /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				BA5B86FD2F3EF06500B518EC /* agent-alert.app */,
+				BA5B86FD2F3EF06500B518EC /* Alerto.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -68,9 +68,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		BA5B86FC2F3EF06500B518EC /* agent-alert */ = {
+		BA5B86FC2F3EF06500B518EC /* Alerto */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = BA5B87082F3EF06600B518EC /* Build configuration list for PBXNativeTarget "agent-alert" */;
+			buildConfigurationList = BA5B87082F3EF06600B518EC /* Build configuration list for PBXNativeTarget "Alerto" */;
 			buildPhases = (
 				BA5B86F92F3EF06500B518EC /* Sources */,
 				BA5B86FA2F3EF06500B518EC /* Frameworks */,
@@ -81,15 +81,15 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				BA5B86FF2F3EF06500B518EC /* agent-alert */,
+				BA5B86FF2F3EF06500B518EC /* alerto */,
 			);
-			name = "agent-alert";
+			name = Alerto;
 			packageProductDependencies = (
 				BA0000002F3EF06500B518EC /* Hummingbird */,
 				FA00000C00000000FA00000C /* Sparkle */,
 			);
-			productName = "agentic-notifier";
-			productReference = BA5B86FD2F3EF06500B518EC /* agent-alert.app */;
+			productName = Alerto;
+			productReference = BA5B86FD2F3EF06500B518EC /* Alerto.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -107,7 +107,7 @@
 					};
 				};
 			};
-			buildConfigurationList = BA5B86F82F3EF06500B518EC /* Build configuration list for PBXProject "agent-alert" */;
+			buildConfigurationList = BA5B86F82F3EF06500B518EC /* Build configuration list for PBXProject "alerto" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -125,7 +125,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				BA5B86FC2F3EF06500B518EC /* agent-alert */,
+				BA5B86FC2F3EF06500B518EC /* Alerto */,
 			);
 		};
 /* End PBXProject section */
@@ -276,14 +276,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1.1.2;
+				CURRENT_PROJECT_VERSION = 2.0.0;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "agent-alert/Info.plist";
-				"INFOPLIST_FILE[sdk=*]" = "agent-alert/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = I;
+				INFOPLIST_FILE = alerto/Info.plist;
+				"INFOPLIST_FILE[sdk=*]" = alerto/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Alerto;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -291,8 +291,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 1.1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = "thongnt.agent-alert";
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = thongnt.alerto;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -311,13 +311,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1.1.2;
+				CURRENT_PROJECT_VERSION = 2.0.0;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = "agent-alert/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = I;
+				INFOPLIST_FILE = alerto/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Alerto;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -325,8 +325,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 1.1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = "thongnt.agent-alert";
+				MARKETING_VERSION = 2.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = thongnt.alerto;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -341,7 +341,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		BA5B86F82F3EF06500B518EC /* Build configuration list for PBXProject "agent-alert" */ = {
+		BA5B86F82F3EF06500B518EC /* Build configuration list for PBXProject "alerto" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BA5B87062F3EF06600B518EC /* Debug */,
@@ -350,7 +350,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		BA5B87082F3EF06600B518EC /* Build configuration list for PBXNativeTarget "agent-alert" */ = {
+		BA5B87082F3EF06600B518EC /* Build configuration list for PBXNativeTarget "Alerto" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BA5B87092F3EF06600B518EC /* Debug */,

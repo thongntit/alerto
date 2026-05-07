@@ -1,6 +1,7 @@
 import SwiftUI
 import Sparkle
 import ServiceManagement
+import UserNotifications
 
 struct SettingsView: View {
     var body: some View {
@@ -31,14 +32,27 @@ struct SettingsView: View {
 }
 
 struct GeneralSettingsView: View {
-    @AppStorage("showOverlay") private var showOverlay = true
+    @AppStorage("notificationStyle") private var notificationStyleRaw = NotificationStyle.overlay.rawValue
     @AppStorage("overlayDuration") private var overlayDuration = 3.0
     @AppStorage("playSound") private var playSound = true
     @AppStorage("selectedSound") private var selectedSound = "Glass"
 
     @StateObject private var serverManager = HTTPServerManager.shared
     @StateObject private var launchAtLoginService = LaunchAtLoginService.shared
+    @StateObject private var systemNotificationService = SystemNotificationService.shared
     @State private var portString: String = ""
+
+    private var notificationStyle: Binding<NotificationStyle> {
+        Binding(
+            get: { NotificationStyle(rawValue: notificationStyleRaw) ?? .overlay },
+            set: { newValue in
+                notificationStyleRaw = newValue.rawValue
+                if newValue == .system {
+                    systemNotificationService.requestAuthorizationIfNeeded()
+                }
+            }
+        )
+    }
 
     let availableSounds = ["Glass", "Ping", "Pop", "Purr", "Blow", "Hero", "Submarine"]
 
@@ -68,16 +82,44 @@ struct GeneralSettingsView: View {
             }
 
             Section("Notifications") {
-                Toggle("Show overlay notification", isOn: $showOverlay)
-
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text("Overlay duration")
-                        Spacer()
-                        Text("\(Int(overlayDuration))s")
-                            .foregroundColor(.secondary)
+                Picker("Notification style", selection: notificationStyle) {
+                    ForEach(NotificationStyle.allCases) { style in
+                        Text(style.displayName).tag(style)
                     }
-                    Slider(value: $overlayDuration, in: 1...10, step: 1)
+                }
+                .pickerStyle(.menu)
+
+                Text("System notifications respect Focus and Do Not Disturb.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                if notificationStyle.wrappedValue == .overlay {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text("Overlay duration")
+                            Spacer()
+                            Text("\(Int(overlayDuration))s")
+                                .foregroundColor(.secondary)
+                        }
+                        Slider(value: $overlayDuration, in: 1...10, step: 1)
+                    }
+                }
+
+                if notificationStyle.wrappedValue == .system,
+                   systemNotificationService.authorizationStatus == .denied {
+                    HStack(alignment: .top, spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.orange)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Notifications are disabled for Alerto.")
+                                .font(.caption)
+                            Button("Open Notification Settings") {
+                                openNotificationSettings()
+                            }
+                            .buttonStyle(.link)
+                            .font(.caption)
+                        }
+                    }
                 }
             }
 
@@ -148,11 +190,18 @@ struct GeneralSettingsView: View {
         .onAppear {
             portString = String(serverManager.port)
             launchAtLoginService.refreshStatus()
+            systemNotificationService.refreshAuthorizationStatus()
         }
     }
 
     private func openLoginItemsSettings() {
         if let url = URL(string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
+    private func openNotificationSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension?Alerto") {
             NSWorkspace.shared.open(url)
         }
     }
@@ -326,9 +375,9 @@ struct ClaudeCodeIntegrationView: View {
     }
 
     private func refreshHookStates() {
-        hookStopEnabled = hookManager.isHookInstalled(hookId: "agent-alert:stop")
-        hookNotificationEnabled = hookManager.isHookInstalled(hookId: "agent-alert:notification")
-        hookSessionEndEnabled = hookManager.isHookInstalled(hookId: "agent-alert:session-end")
+        hookStopEnabled = hookManager.isHookInstalled(hookId: "alerto:stop")
+        hookNotificationEnabled = hookManager.isHookInstalled(hookId: "alerto:notification")
+        hookSessionEndEnabled = hookManager.isHookInstalled(hookId: "alerto:session-end")
     }
 
     private func toggleHook(_ hookName: String, enabled: Bool) {
@@ -436,7 +485,7 @@ struct AboutView: View {
                 .frame(width: 64, height: 64)
                 .cornerRadius(12)
 
-            Text("AgentAlert")
+            Text("Alerto")
                 .font(.title)
                 .fontWeight(.bold)
 
