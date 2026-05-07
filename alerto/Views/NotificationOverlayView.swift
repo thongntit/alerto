@@ -6,24 +6,23 @@ struct NotificationOverlayView: View {
 
     var body: some View {
         if let notification = notification {
+            let content = notification.displayContent
             HStack(spacing: 16) {
                 iconView(for: notification)
                     .frame(width: 44, height: 44)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    // Show hook type context if available
-                    if let hookType = notification.hookType, hookType != .unknown {
-                        Text(hookContextTitle(for: hookType))
+                    if let subtitle = content.subtitle {
+                        Text(subtitle)
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(.white.opacity(0.7))
                     }
 
-                    Text(notification.source.displayName)
+                    Text(content.title)
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(.white)
 
-                    // Show truncated message content
-                    Text(notification.truncatedMessage)
+                    Text(content.body)
                         .font(.system(size: 13))
                         .foregroundStyle(.white.opacity(0.9))
                         .lineLimit(3)
@@ -70,25 +69,6 @@ struct NotificationOverlayView: View {
         }
     }
 
-    /// Returns a human-readable context title based on the hook type
-    private func hookContextTitle(for hookType: HookType) -> String {
-        switch hookType {
-        case .notification:
-            return "Claude needs your input"
-        case .stop:
-            return "Claude finished responding"
-        case .subagentStop:
-            return "Subagent completed"
-        case .sessionEnd:
-            return "Session ended"
-        case .userPromptSubmit:
-            return "Processing your prompt"
-        case .permissionRequest:
-            return "Permission requested"
-        case .unknown:
-            return ""
-        }
-    }
 }
 
 // MARK: - Platform-Specific Background Modifier

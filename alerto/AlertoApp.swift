@@ -107,8 +107,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSLog("[AppDelegate] applicationDidFinishLaunching")
+        NotificationManager.migrateLegacySettingsIfNeeded()
         URLSchemeHandler.shared.registerHandler()
         NotificationOverlayManager.shared.setup()
+        SystemNotificationService.shared.registerDelegate()
 
         // Trigger initialization by accessing the singleton
         _ = updaterManager.updaterController
