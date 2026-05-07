@@ -33,7 +33,7 @@ The in-memory log buffer SHALL be capped at 500 entries. When the buffer is full
 - **THEN** the entry SHALL be added to the ring buffer
 
 ### Requirement: Persist log entries across sessions
-`AppLogger` SHALL asynchronously serialise the ring buffer to a JSON file at `~/Library/Application Support/AgentAlert/app.log.json` within one second of any new entry being added.
+`AppLogger` SHALL asynchronously serialise the ring buffer to a JSON file at `~/Library/Application Support/Alerto/app.log.json` within one second of any new entry being added.
 
 #### Scenario: Persistence after logging
 - **WHEN** a log entry is added

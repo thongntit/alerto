@@ -5,7 +5,7 @@
 The system SHALL start an HTTP server to receive notifications from Claude Code hooks.
 
 #### Scenario: HTTP server starts successfully
-- **WHEN** Agent Alert launches
+- **WHEN** Alerto launches
 - **AND** hook integration is enabled
 - **THEN** the system SHALL start the HTTP server on the configured port
 - **AND** be ready to receive POST requests

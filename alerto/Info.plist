@@ -9,10 +9,10 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>agent-alert</string>
+				<string>alerto</string>
 			</array>
 			<key>CFBundleURLName</key>
-			<string>com.agentalert.app</string>
+			<string>com.alerto.app</string>
 		</dict>
 	</array>
 	<key>LSUIElement</key>
@@ -22,7 +22,7 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>SUFeedURL</key>
-	<string>https://github.com/thongntit/agent-alert/releases/latest/download/appcast.xml</string>
+	<string>https://github.com/thongntit/alerto/releases/latest/download/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>sElwfDTSickg4KUpbD2j4JnXimYVt1DJBvvvy36QS+k=</string>
 	<key>SUEnableAutomaticChecks</key>

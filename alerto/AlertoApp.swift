@@ -3,12 +3,12 @@ import Combine
 import Sparkle
 
 @main
-struct AgentAlertApp: App {
+struct AlertoApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var notificationManager = NotificationManager.shared
 
     var body: some Scene {
-        MenuBarExtra("AgentAlert", systemImage: notificationManager.menubarIcon) {
+        MenuBarExtra("Alerto", systemImage: notificationManager.menubarIcon) {
             MenuBarView()
         }
         .menuBarExtraStyle(.window)
@@ -107,8 +107,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSLog("[AppDelegate] applicationDidFinishLaunching")
+        NotificationManager.migrateLegacySettingsIfNeeded()
         URLSchemeHandler.shared.registerHandler()
         NotificationOverlayManager.shared.setup()
+        SystemNotificationService.shared.registerDelegate()
 
         // Trigger initialization by accessing the singleton
         _ = updaterManager.updaterController

@@ -75,7 +75,7 @@ class AppLogger: ObservableObject {
         guard let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
             return nil
         }
-        return appSupport.appendingPathComponent("AgentAlert/app.log.json")
+        return appSupport.appendingPathComponent("Alerto/app.log.json")
     }
 
     private init() {

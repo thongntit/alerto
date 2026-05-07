@@ -1,4 +1,4 @@
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: Display hook message in notification
 The system SHALL display the actual message content from Claude Code hooks in notifications instead of hardcoded messages, for both overlay and system-notification presentation modes.

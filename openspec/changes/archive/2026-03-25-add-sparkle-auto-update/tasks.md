@@ -6,13 +6,13 @@
 
 ## 2. Add Sparkle Dependency
 
-- [x] 2.1 Add Sparkle Swift Package to `agent-alert.xcodeproj` via Xcode (Package URL: `https://github.com/sparkle-project/Sparkle`, version `2.x`)
-- [x] 2.2 Link `Sparkle` framework to the `agentic-notifier` target
+- [x] 2.1 Add Sparkle Swift Package to `alerto.xcodeproj` via Xcode (Package URL: `https://github.com/sparkle-project/Sparkle`, version `2.x`)
+- [x] 2.2 Link `Sparkle` framework to the `Alerto` target
 - [x] 2.3 Add `SUFeedURL` (`https://github.com/{owner}/{repo}/releases/latest/download/appcast.xml`) and `SUPublicEDKey` (from step 1.3) to `Info.plist`
 
 ## 3. App Code — AppDelegate
 
-- [x] 3.1 Import `Sparkle` in `AgentAlertApp.swift`
+- [x] 3.1 Import `Sparkle` in `AlertoApp.swift`
 - [x] 3.2 Add `SPUStandardUpdaterController` as a stored property on `AppDelegate`, initialized with `startingUpdater: true`
 
 ## 4. App Code — AboutView
@@ -25,9 +25,9 @@
 ## 5. CI — Release Workflow
 
 - [x] 5.1 Add step to download and extract Sparkle release (to get `sign_update` binary) in `release.yml`
-- [x] 5.2 After DMG is built, add step to sign it: `./sign_update AgentAlert.dmg -s "$SPARKLE_PRIVATE_KEY"` and capture signature + file size
+- [x] 5.2 After DMG is built, add step to sign it: `./sign_update Alerto.dmg -s "$SPARKLE_PRIVATE_KEY"` and capture signature + file size
 - [x] 5.3 Add step to generate `appcast.xml` with correct version, DMG URL, EdDSA signature, length, and `minimumSystemVersion`
-- [x] 5.4 Upload `appcast.xml` as a release asset alongside `AgentAlert.dmg`
+- [x] 5.4 Upload `appcast.xml` as a release asset alongside `Alerto.dmg`
 
 ## 6. Verification
 

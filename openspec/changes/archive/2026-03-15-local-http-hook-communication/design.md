@@ -1,6 +1,6 @@
 ## Context
 
-The agent-alert app currently uses macOS URL schemes (`agent-alert://notify?...`) for receiving notification requests from external tools. When a hook executes `open 'agent-alert://...'`, macOS sends an Apple Event to the app, launching it if not running. This creates several issues:
+The alerto app currently uses macOS URL schemes (`alerto://notify?...`) for receiving notification requests from external tools. When a hook executes `open 'alerto://...'`, macOS sends an Apple Event to the app, launching it if not running. This creates several issues:
 
 1. **Process Re-activation**: Every hook call causes macOS to "summon" the app, interfering with normal app lifecycle
 2. **No Clean Termination**: The app cannot cleanly quit because external hooks may re-launch it
