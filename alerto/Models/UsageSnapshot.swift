@@ -13,6 +13,11 @@ enum UsageProvider: String, CaseIterable, Identifiable, Hashable {
         }
     }
 
+    /// Provider-specific menu-bar visibility keys.
+    var menuBarVisibilityKey: String {
+        "showMenubarUsage.\(rawValue)"
+    }
+
     /// Provider brand colors mirrored from OpenUsage's TotalSpendPalette.
     var brandColorHex: String {
         switch self {
@@ -26,6 +31,33 @@ enum UsageProvider: String, CaseIterable, Identifiable, Hashable {
         case .claude: return "brain.head.profile"
         case .codex: return "terminal.fill"
         }
+    }
+}
+
+enum UsageDisplayPreferences {
+    static let legacyKey = "showMenubarUsage"
+
+    static func key(for provider: UsageProvider) -> String {
+        provider.menuBarVisibilityKey
+    }
+
+    static func defaultValue(
+        for provider: UsageProvider,
+        in defaults: UserDefaults = .standard
+    ) -> Bool {
+        if defaults.object(forKey: key(for: provider)) != nil {
+            return defaults.bool(forKey: key(for: provider))
+        }
+        if defaults.object(forKey: legacyKey) != nil {
+            return defaults.bool(forKey: legacyKey)
+        }
+        return true
+    }
+
+    static func visibleProviders(
+        in defaults: UserDefaults = .standard
+    ) -> [UsageProvider] {
+        UsageProvider.allCases.filter { defaultValue(for: $0, in: defaults) }
     }
 }
 
