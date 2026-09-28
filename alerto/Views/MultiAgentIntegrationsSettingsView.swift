@@ -32,6 +32,8 @@ struct MultiAgentIntegrationsSettingsView: View {
                     .padding(.vertical, 2)
                 }
 
+                UsageVisibilitySettings()
+
                 ForEach(CodingAgent.allCases) { agent in
                     AgentIntegrationCard(
                         agent: agent,
@@ -52,6 +54,40 @@ struct MultiAgentIntegrationsSettingsView: View {
         case .running: return .green
         case .stopped: return .gray
         case .error: return .red
+        }
+    }
+}
+
+struct UsageVisibilitySettings: View {
+    @AppStorage(UsageProvider.claude.menuBarVisibilityKey)
+    private var showClaudeUsage = UsageDisplayPreferences.defaultValue(for: .claude)
+    @AppStorage(UsageProvider.codex.menuBarVisibilityKey)
+    private var showCodexUsage = UsageDisplayPreferences.defaultValue(for: .codex)
+
+    var body: some View {
+        GroupBox("Usage in menu bar") {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Choose which providers show session and weekly percentages beside the bell.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                Toggle(isOn: $showClaudeUsage) {
+                    HStack(spacing: 8) {
+                        ProviderIconView(provider: .claude, size: 18)
+                            .frame(width: 22, height: 22)
+                        Text(UsageProvider.claude.displayName)
+                    }
+                }
+
+                Toggle(isOn: $showCodexUsage) {
+                    HStack(spacing: 8) {
+                        ProviderIconView(provider: .codex, size: 18)
+                            .frame(width: 22, height: 22)
+                        Text(UsageProvider.codex.displayName)
+                    }
+                }
+            }
+            .padding(.vertical, 2)
         }
     }
 }
