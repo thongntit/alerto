@@ -56,4 +56,25 @@ final class UsageSnapshotTests: XCTestCase {
             XCTAssertEqual(error as? UsageFetchError, .invalidResponse(.codex))
         }
     }
+
+    func testMenuBarUsageCanBeConfiguredPerProvider() throws {
+        let suiteName = "UsageSnapshotTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defaults.removePersistentDomain(forName: suiteName)
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        XCTAssertEqual(
+            UsageDisplayPreferences.visibleProviders(in: defaults),
+            [.claude, .codex]
+        )
+
+        defaults.set(false, forKey: UsageDisplayPreferences.key(for: .claude))
+        XCTAssertEqual(
+            UsageDisplayPreferences.visibleProviders(in: defaults),
+            [.codex]
+        )
+
+        defaults.set(false, forKey: UsageDisplayPreferences.key(for: .codex))
+        XCTAssertTrue(UsageDisplayPreferences.visibleProviders(in: defaults).isEmpty)
+    }
 }

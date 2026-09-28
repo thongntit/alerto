@@ -316,8 +316,6 @@ struct GeneralSettingsView: View {
 }
 
 struct IntegrationsSettingsView: View {
-    @AppStorage("showMenubarUsage") private var showMenubarUsage = true
-
     @StateObject private var serverManager = HTTPServerManager.shared
 
     var body: some View {
@@ -327,13 +325,7 @@ struct IntegrationsSettingsView: View {
                     .font(.title2)
                     .fontWeight(.semibold)
 
-                Section("Usage") {
-                    Toggle("Show remaining usage", isOn: $showMenubarUsage)
-
-                    Text("Shows Claude Code and Codex session and weekly percentages beside the bell.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+                UsageVisibilitySettings()
 
                 ClaudeCodeIntegrationView(port: serverManager.port)
 
