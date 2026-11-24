@@ -1,6 +1,6 @@
 import Foundation
 
-enum UsageProvider: String, CaseIterable, Identifiable, Hashable {
+enum UsageProvider: String, CaseIterable, Codable, Identifiable, Hashable {
     case claude
     case codex
 
@@ -61,7 +61,7 @@ enum UsageDisplayPreferences {
     }
 }
 
-struct UsageSnapshot: Equatable {
+struct UsageSnapshot: Codable, Equatable {
     let generatedAt: Date
     var providers: [ProviderUsage]
 
@@ -83,7 +83,7 @@ struct UsageSnapshot: Equatable {
     }
 }
 
-struct ProviderUsage: Identifiable, Equatable {
+struct ProviderUsage: Codable, Identifiable, Equatable {
     let provider: UsageProvider
     let plan: String?
     var isStale: Bool
@@ -92,12 +92,22 @@ struct ProviderUsage: Identifiable, Equatable {
     var id: String { provider.rawValue }
 }
 
-struct UsageLimit: Identifiable, Equatable {
+struct UsageLimit: Codable, Identifiable, Equatable {
     let label: String
     let remainingPercent: Double
     let resetsAt: Date?
 
     var id: String { label }
+
+    /// Provider-reported quota utilization. The APIs expose percentages rather than
+    /// absolute prompt/output token counts, so this is intentionally labeled as usage.
+    var usedPercent: Double {
+        min(100, max(0, 100 - remainingPercent))
+    }
+
+    var formattedUsed: String {
+        "\(Int(usedPercent.rounded()))% used"
+    }
 
     var formattedRemaining: String {
         "\(Int(remainingPercent.rounded()))% left"

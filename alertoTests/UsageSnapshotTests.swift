@@ -28,6 +28,7 @@ final class UsageSnapshotTests: XCTestCase {
 
         XCTAssertEqual(usage.provider, .claude)
         XCTAssertEqual(usage.limits.map(\.formattedRemaining), ["95% left", "99% left"])
+        XCTAssertEqual(usage.limits.map(\.formattedUsed), ["5% used", "1% used"])
         XCTAssertNotNil(usage.limits.first?.resetsAt)
     }
 

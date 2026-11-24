@@ -106,6 +106,15 @@ struct MenuBarView: View {
                 Spacer()
 
                 Button {
+                    UsageHistoryWindowManager.shared.showHistory()
+                } label: {
+                    Image(systemName: "chart.xyaxis.line")
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(.secondary)
+                .help("View usage history")
+
+                Button {
                     Task {
                         await usageManager.refresh(manual: true)
                     }
@@ -394,8 +403,13 @@ private struct UsageLimitRow: View {
                     .font(.system(size: 11))
                     .foregroundColor(.secondary)
                 Spacer()
-                Text(limit.formattedRemaining)
-                    .font(.system(size: 11, weight: .medium))
+                VStack(alignment: .trailing, spacing: 1) {
+                    Text(limit.formattedUsed)
+                        .font(.system(size: 11, weight: .medium))
+                    Text(limit.formattedRemaining)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                }
             }
 
             ProgressView(value: limit.remainingPercent, total: 100)

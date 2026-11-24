@@ -63,6 +63,8 @@ struct UsageVisibilitySettings: View {
     private var showClaudeUsage = UsageDisplayPreferences.defaultValue(for: .claude)
     @AppStorage(UsageProvider.codex.menuBarVisibilityKey)
     private var showCodexUsage = UsageDisplayPreferences.defaultValue(for: .codex)
+    @AppStorage(UsageHistoryStore.enabledKey)
+    private var usageHistoryEnabled = true
 
     var body: some View {
         GroupBox("Usage in menu bar") {
@@ -86,6 +88,19 @@ struct UsageVisibilitySettings: View {
                         Text(UsageProvider.codex.displayName)
                     }
                 }
+
+                Divider()
+
+                Toggle("Store local usage history", isOn: $usageHistoryEnabled)
+                    .onChange(of: usageHistoryEnabled) { _, enabled in
+                        if !enabled {
+                            UsageManager.shared.clearUsageHistory()
+                        }
+                    }
+
+                Text("Keeps provider-reported percentages and reset times on this Mac for the Usage History chart. No prompts, responses, or credentials are stored.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
             .padding(.vertical, 2)
         }
