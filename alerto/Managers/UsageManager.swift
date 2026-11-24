@@ -7,22 +7,34 @@ final class UsageManager: ObservableObject {
     static let shared = UsageManager()
 
     @Published private(set) var snapshot: UsageSnapshot?
+    @Published private(set) var history: [UsageSnapshot]
     @Published private(set) var providerErrors: [UsageProvider: String] = [:]
     @Published private(set) var providerErrorKinds: [UsageProvider: UsageFetchError] = [:]
     @Published private(set) var isRefreshing = false
     @Published private(set) var lastRefreshAt: Date?
 
     private let client: UsageClient
+    private let historyStore: UsageHistoryStore
     private var refreshTimer: Timer?
     private var lastAttemptAt: Date?
 
-    init(client: UsageClient = UsageClient()) {
+    init(
+        client: UsageClient = UsageClient(),
+        historyStore: UsageHistoryStore? = nil
+    ) {
         self.client = client
+        self.historyStore = historyStore ?? UsageHistoryStore()
+        self.history = self.historyStore.load()
         startAutomaticRefresh()
     }
 
     deinit {
         refreshTimer?.invalidate()
+    }
+
+    func clearUsageHistory() {
+        historyStore.clear()
+        history = []
     }
 
     /// Automatic refreshes are spaced five minutes apart. Manual refreshes are coalesced for
@@ -47,12 +59,14 @@ final class UsageManager: ObservableObject {
             (.codex, await codex)
         ]
 
-        var updated = snapshot ?? UsageSnapshot(generatedAt: now, providers: [])
+        var updated = UsageSnapshot(generatedAt: now, providers: snapshot?.providers ?? [])
         var errors: [UsageProvider: String] = [:]
         var errorKinds: [UsageProvider: UsageFetchError] = [:]
+        var didReceiveUsage = false
         for (provider, result) in results {
             switch result {
             case .success(let usage):
+                didReceiveUsage = true
                 updated.replace(usage)
             case .failure(let error):
                 updated.markStale(provider)
@@ -64,6 +78,9 @@ final class UsageManager: ObservableObject {
         }
 
         snapshot = updated.providers.isEmpty ? nil : updated
+        if didReceiveUsage {
+            history = historyStore.append(updated)
+        }
         providerErrors = errors
         providerErrorKinds = errorKinds
         lastRefreshAt = Date()

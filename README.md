@@ -83,6 +83,7 @@ The application supports several configurable options available in the Settings 
 - Enable coding-agent integrations and select their lifecycle events
 - Enable/disable notification sounds
 - Configure silence hours for overnight or daytime schedules
+- View locally stored usage history and quota reset trends
 - Select from system notification sounds
 - View notification history
 - Clear all notifications

@@ -28,6 +28,7 @@ final class UsageSnapshotTests: XCTestCase {
 
         XCTAssertEqual(usage.provider, .claude)
         XCTAssertEqual(usage.limits.map(\.formattedRemaining), ["95% left", "99% left"])
+        XCTAssertEqual(usage.limits.map(\.formattedUsed), ["5% used", "1% used"])
         XCTAssertNotNil(usage.limits.first?.resetsAt)
     }
 
@@ -55,5 +56,26 @@ final class UsageSnapshotTests: XCTestCase {
         XCTAssertThrowsError(try UsageResponseMapper.codex(data: Data(#"{"rate_limit":{}}"#.utf8))) { error in
             XCTAssertEqual(error as? UsageFetchError, .invalidResponse(.codex))
         }
+    }
+
+    func testMenuBarUsageCanBeConfiguredPerProvider() throws {
+        let suiteName = "UsageSnapshotTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        defaults.removePersistentDomain(forName: suiteName)
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        XCTAssertEqual(
+            UsageDisplayPreferences.visibleProviders(in: defaults),
+            [.claude, .codex]
+        )
+
+        defaults.set(false, forKey: UsageDisplayPreferences.key(for: .claude))
+        XCTAssertEqual(
+            UsageDisplayPreferences.visibleProviders(in: defaults),
+            [.codex]
+        )
+
+        defaults.set(false, forKey: UsageDisplayPreferences.key(for: .codex))
+        XCTAssertTrue(UsageDisplayPreferences.visibleProviders(in: defaults).isEmpty)
     }
 }

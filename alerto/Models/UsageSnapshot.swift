@@ -1,6 +1,6 @@
 import Foundation
 
-enum UsageProvider: String, CaseIterable, Identifiable, Hashable {
+enum UsageProvider: String, CaseIterable, Codable, Identifiable, Hashable {
     case claude
     case codex
 
@@ -11,6 +11,11 @@ enum UsageProvider: String, CaseIterable, Identifiable, Hashable {
         case .claude: return "Claude Code"
         case .codex: return "Codex"
         }
+    }
+
+    /// Provider-specific menu-bar visibility keys.
+    var menuBarVisibilityKey: String {
+        "showMenubarUsage.\(rawValue)"
     }
 
     /// Provider brand colors mirrored from OpenUsage's TotalSpendPalette.
@@ -29,7 +34,34 @@ enum UsageProvider: String, CaseIterable, Identifiable, Hashable {
     }
 }
 
-struct UsageSnapshot: Equatable {
+enum UsageDisplayPreferences {
+    static let legacyKey = "showMenubarUsage"
+
+    static func key(for provider: UsageProvider) -> String {
+        provider.menuBarVisibilityKey
+    }
+
+    static func defaultValue(
+        for provider: UsageProvider,
+        in defaults: UserDefaults = .standard
+    ) -> Bool {
+        if defaults.object(forKey: key(for: provider)) != nil {
+            return defaults.bool(forKey: key(for: provider))
+        }
+        if defaults.object(forKey: legacyKey) != nil {
+            return defaults.bool(forKey: legacyKey)
+        }
+        return true
+    }
+
+    static func visibleProviders(
+        in defaults: UserDefaults = .standard
+    ) -> [UsageProvider] {
+        UsageProvider.allCases.filter { defaultValue(for: $0, in: defaults) }
+    }
+}
+
+struct UsageSnapshot: Codable, Equatable {
     let generatedAt: Date
     var providers: [ProviderUsage]
 
@@ -51,7 +83,7 @@ struct UsageSnapshot: Equatable {
     }
 }
 
-struct ProviderUsage: Identifiable, Equatable {
+struct ProviderUsage: Codable, Identifiable, Equatable {
     let provider: UsageProvider
     let plan: String?
     var isStale: Bool
@@ -60,12 +92,22 @@ struct ProviderUsage: Identifiable, Equatable {
     var id: String { provider.rawValue }
 }
 
-struct UsageLimit: Identifiable, Equatable {
+struct UsageLimit: Codable, Identifiable, Equatable {
     let label: String
     let remainingPercent: Double
     let resetsAt: Date?
 
     var id: String { label }
+
+    /// Provider-reported quota utilization. The APIs expose percentages rather than
+    /// absolute prompt/output token counts, so this is intentionally labeled as usage.
+    var usedPercent: Double {
+        min(100, max(0, 100 - remainingPercent))
+    }
+
+    var formattedUsed: String {
+        "\(Int(usedPercent.rounded()))% used"
+    }
 
     var formattedRemaining: String {
         "\(Int(remainingPercent.rounded()))% left"

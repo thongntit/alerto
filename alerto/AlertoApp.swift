@@ -8,7 +8,19 @@ struct AlertoApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var usageManager = UsageManager.shared
-    @AppStorage("showMenubarUsage") private var showMenubarUsage = true
+    @AppStorage(UsageProvider.claude.menuBarVisibilityKey)
+    private var showClaudeMenubarUsage = UsageDisplayPreferences.defaultValue(for: .claude)
+    @AppStorage(UsageProvider.codex.menuBarVisibilityKey)
+    private var showCodexMenubarUsage = UsageDisplayPreferences.defaultValue(for: .codex)
+
+    private var visibleUsageProviders: [UsageProvider] {
+        UsageProvider.allCases.filter { provider in
+            switch provider {
+            case .claude: return showClaudeMenubarUsage
+            case .codex: return showCodexMenubarUsage
+            }
+        }
+    }
 
     var body: some Scene {
         MenuBarExtra {
@@ -17,7 +29,7 @@ struct AlertoApp: App {
             if let image = MenuBarStatusRenderer.image(
                 iconName: notificationManager.menubarIcon,
                 snapshot: usageManager.snapshot,
-                showUsage: showMenubarUsage
+                visibleProviders: visibleUsageProviders
             ) {
                 Image(nsImage: image)
             }
@@ -28,12 +40,16 @@ struct AlertoApp: App {
 
 @MainActor
 private enum MenuBarStatusRenderer {
-    static func image(iconName: String, snapshot: UsageSnapshot?, showUsage: Bool) -> NSImage? {
+    static func image(
+        iconName: String,
+        snapshot: UsageSnapshot?,
+        visibleProviders: [UsageProvider]
+    ) -> NSImage? {
         let renderer = ImageRenderer(
             content: MenuBarStatusContent(
                 iconName: iconName,
                 snapshot: snapshot,
-                showUsage: showUsage
+                visibleProviders: visibleProviders
             )
         )
         renderer.scale = 2
@@ -53,16 +69,17 @@ private enum MenuBarStatusRenderer {
 private struct MenuBarStatusContent: View {
     let iconName: String
     let snapshot: UsageSnapshot?
-    let showUsage: Bool
+    let visibleProviders: [UsageProvider]
 
     var body: some View {
         HStack(spacing: 5) {
             Image(systemName: iconName)
 
-            if showUsage {
+            if !visibleProviders.isEmpty {
                 VStack(alignment: .leading, spacing: -1) {
-                    usageRow(for: .claude)
-                    usageRow(for: .codex)
+                    ForEach(visibleProviders) { provider in
+                        usageRow(for: provider)
+                    }
                 }
                 .font(.system(size: 9, weight: .medium, design: .monospaced))
                 .frame(width: 62, height: 20)
